@@ -1,9 +1,10 @@
 Conda recipe to build `clang` package, including:
 
- - `libclang.dll`
+ - `libclang.dll` (Windows only)
+ - `libclang.so` (Linux only)
  - `clang` Python bindings
 
-**Note** Windows 32-bit build only.
+**Note** Windows 32-bit build and Linux build only.
 
 Build
 =====
@@ -20,7 +21,7 @@ Build recipe:
 Install
 =======
 
-The [Windows 32-bit build][1] may be installed from the
+The [Windows 32-bit or Linux 32-bit build][1] may be installed from the
 [`wheeler-microfluidics`][2] channel using:
 
     conda install -c wheeler-microfluidics clang
