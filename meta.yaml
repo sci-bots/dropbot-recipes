@@ -18,5 +18,5 @@ build:
 requirements:
   build:
     - python
-    - wget
+    - pywget
     - 7za
