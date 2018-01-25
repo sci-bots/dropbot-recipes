@@ -1,0 +1,34 @@
+{% set name = "si-prefix" %}
+{% set version = "1.2.1" %}
+
+package:
+  name: {{ name|lower }}
+  version: {{ version }}
+
+source:
+  fn: {{ name }}-v{{ version }}.tar.gz
+  url: https://github.com/cfobel/si-prefix/archive/v{{ version }}.tar.gz
+
+build:
+  number: 0
+  script: python setup.py install
+
+requirements:
+  build:
+    - python
+  run:
+    - python
+
+test:
+  imports:
+    - si_prefix
+
+about:
+  home: http://{{ name }}.readthedocs.io
+  license: BSD-3
+  summary: 'Functions for formatting numbers according to SI standards.'
+  dev_url: https://github.com/cfobel/{{ name }}
+
+extra:
+  recipe-maintainers:
+    - cfobel
