@@ -1,6 +1,6 @@
 package:
   name: ntfsutils
-  version: 0.1.3
+  version: 0.1.3.post2
 
 build:
   # If this is a new build for the same version, increment the build
@@ -10,7 +10,7 @@ build:
   noarch: python
 
 source:
-  url: https://github.com/sid0/ntfs/archive/0.1.3.tar.gz
+  url: https://github.com/sci-bots/ntfs/archive/968a335a48be166b9d1ad71178f3e2fb278bb23b.tar.gz
 
 requirements:
   build:
@@ -25,9 +25,10 @@ test:
 
 about:
   licence: BSD
-  url: https://github.com/sid0/ntfs
+  url: https://github.com/sci-bots/ntfs
   author:
     - Siddharth Agarwal (sid0)
     - Roman Lacko (rlacko)
     - Barry Pederson (barryp)
     - Philippe Ombredanne (pombredanne)
+    - Christian Fobel (cfobel)
