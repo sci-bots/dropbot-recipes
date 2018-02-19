@@ -1,4 +1,4 @@
-{% set VERSION = "3.9.0" %}
+{% set VERSION = "5.0.0" %}
 package:
   name: python-clang
   version: {{ VERSION }}
@@ -20,3 +20,9 @@ requirements:
   run:
     - clang {{ VERSION }}
     - python
+
+test:
+  imports:
+    - clang
+    - clang.cindex
+    - clang.enumerations
