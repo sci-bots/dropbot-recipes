@@ -1,13 +1,29 @@
-# source will be downloaded prior to filling in jinja templates
-# Example assumes that this folder has setup.py in it
-source:
-  git_url: https://github.com/ivanseidel/LinkedList.git
-
+{% set PKG_NAME = 'arduino-linked-list' %}
+{% set LIB_NAME = 'LinkedList' %}
+{% set VERSION = '1.2.3' %}
+{% set GITHUB_USER = 'ivanseidel' %}
 package:
-  name: arduino-linked-list
-  version: {{ GIT_DESCRIBE_TAG }}
+  name: {{ PKG_NAME }}
+  version: {{ VERSION }}
+
+source:
+  url: https://github.com/{{ GITHUB_USER }}/{{ LIB_NAME }}/archive/{{ VERSION }}.tar.gz
 
 build:
   # If this is a new build for the same version, increment the build
   # number. If you do not include this key, it defaults to 0.
-  number: 1
+  number: 2
+  script:
+    python -c
+      "import os.path; import os; import shutil;
+      install_dir = os.path.join(os.environ['PREFIX'],
+                                 'Library',  # [win]
+                                 'include', 'Arduino', '{{ LIB_NAME }}');
+      shutil.copytree(os.environ['SRC_DIR'], install_dir);
+      os.remove(os.path.join(install_dir, 'bld.bat'));  # [win]
+      os.remove(os.path.join(install_dir, 'build.sh'));  # [not win]
+      "
+
+requirements:
+  build:
+    - python
