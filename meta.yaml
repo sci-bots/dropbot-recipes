@@ -1,12 +1,18 @@
+{% set PKG_NAME = 'json-tricks' %}
+{% set VERSION = '3.11.3' %}
+source:
+  url: https://pypi.python.org/packages/88/9b/e086c9c0276ce2faf5768105c02b06b73f89a53bd0a77d9b6888d382502b/json_tricks-3.11.3.tar.gz
+  md5: b55b72500ab234af3991b54224b9fc10
+
 package:
-  name: json-tricks
-  version: 3.8.0
+  name: {{ PKG_NAME }}
+  version: {{ VERSION }}
 
 build:
   # If this is a new build for the same version, increment the build
   # number. If you do not include this key, it defaults to 0.
   number: 0
-  script: python -m pip install "json-tricks==3.8.0"
+  script: python setup.py install --single-version-externally-managed --record record.txt
 
 requirements:
   build:
