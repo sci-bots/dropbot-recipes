@@ -1,3 +1,6 @@
 [submodule "slow-soft-i2c-master"]
 	path = slow-soft-i2c-master
 	url = git@github.com:sci-bots/arduino-slow-soft-i2c-master-recipe.git
+[submodule "slow-soft-wire"]
+	path = slow-soft-wire
+	url = git@github.com:sci-bots/arduino-slow-soft-wire-recipe.git
