@@ -1,0 +1,25 @@
+{% set VERSION = '1.0.0' %}
+{% set REPO = 'https://github.com/sci-bots/Trololio' %}
+{% set COMMIT = 'v' + VERSION %}
+package:
+  name: platformio
+  version: {{ VERSION }}
+
+source:
+  url: {{ REPO }}/archive/{{ COMMIT }}.tar.gz
+
+build:
+  number: 0
+  noarch: python
+  script: python setup.py install --single-version-externally-managed --record record.txt
+
+requirements:
+  build:
+    - python
+
+  run:
+    - python
+
+about:
+  home: {{ REPO }}
+  license: MIT
