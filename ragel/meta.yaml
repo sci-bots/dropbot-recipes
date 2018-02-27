@@ -19,5 +19,3 @@ build:
 requirements:
   build:
     - automake  # [not win]
-    - python  # [not win]
-    - wget  # [not win]
