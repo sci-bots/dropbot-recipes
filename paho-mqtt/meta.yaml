@@ -1,0 +1,24 @@
+package:
+    name: paho-mqtt
+    version: 1.2.3
+
+build:
+    number: 0
+    script: python -m pip install "paho-mqtt==1.2.3"
+
+requirements:
+    build:
+        - python 2.7*
+
+    run:
+        - python 2.7*
+
+test:
+    imports:
+        - paho.mqtt.client
+        - paho.mqtt.subscribe
+        - paho.mqtt.publish
+
+about:
+  home: https://github.com/wheeler-microfluidics/paho-mqtt-recipe
+  license: Eclipse Public License v1.0 / Eclipse Distribution License v1.0
