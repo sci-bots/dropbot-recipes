@@ -12,17 +12,18 @@ source:
 build:
   # If this is a new build for the same version, increment the build
   # number. If you do not include this key, it defaults to 0.
-  number: 2
-  noarch: true
+  number: 3
   script:
     python -c
       "import os.path; import os; import shutil;
-      install_dir = os.path.join(os.environ['PREFIX'],
-                                 'Library',  # [win]
-                                 'include', 'Arduino', '{{ LIB_NAME }}');
+      CONDA_LIB_INC = os.environ.get('LIBRARY_INC',
+                                     os.path.join(os.environ['PREFIX'],
+                                                  'include'));
+      install_dir = os.path.join(CONDA_LIB_INC, 'Arduino', '{{ LIB_NAME }}');
       shutil.copytree(os.environ['SRC_DIR'], install_dir);
-      os.remove(os.path.join(install_dir, 'bld.bat'));  # [win]
-      os.remove(os.path.join(install_dir, 'build.sh'));  # [not win]
+      BUILD_SCRIPT = os.path.join(install_dir, 'bld.bat');
+      BUILD_SCRIPT = BUILD_SCRIPT if os.path.isfile(BUILD_SCRIPT) else os.path.join(install_dir, 'build.sh');
+      os.remove(BUILD_SCRIPT);
       "
 
 requirements:
