@@ -1,0 +1,85 @@
+# Full credit goes to https://github.com/conda/conda-recipes for providing this recipe.
+# It has been subsequently adapted for automated building with conda-forge.
+
+{% set pkg_name = "matplotlib" %}
+{% set version = "2.1.2" %}
+
+package:
+  name: {{ pkg_name }}
+  version: {{ version }}
+
+build:
+  number: 1
+  script: pip install "{{ pkg_name }}=={{ version }}"
+
+requirements:
+  host:
+    - pip
+    - python
+    - setuptools
+    - backports.functools_lru_cache  # [py2k]
+    - numpy
+    - python-dateutil
+    - msinttypes  # [win]
+    - cycler >=0.10
+    - pyparsing
+    - pytz
+    - functools32  # [py2k]
+    - subprocess32  # [py2k and unix]
+  run:
+    - python
+    - setuptools
+    - backports.functools_lru_cache  # [py2k]
+    - numpy
+    - cycler >=0.10
+    - python-dateutil
+    - pytz
+    - pyparsing
+    - functools32  # [py2k]
+    - subprocess32  # [py2k and unix]
+    - tornado
+
+test:
+  requires:
+    - pycairo-gtk2  # [win and py2k]
+  imports:
+    - matplotlib
+    - matplotlib.pyplot
+    - matplotlib._cntr
+    - matplotlib._image
+    - matplotlib._path
+    - matplotlib._png
+    - matplotlib._tri
+    - matplotlib.backends._backend_agg
+    - matplotlib.backends._backend_gdk  # [win and py2k]
+    - matplotlib.ft2font
+    - matplotlib.ttconv
+    - matplotlib.backends._tkagg  # [not win]
+    - mpl_toolkits
+    - pylab
+  commands:
+    - conda inspect linkages -p $PREFIX $PKG_NAME  # [not win]
+    - conda inspect objects -p $PREFIX $PKG_NAME  # [osx]
+
+about:
+  home: http://matplotlib.org/
+  license: PSF-based
+  license_url: http://matplotlib.sourceforge.net/users/license.html
+  license_family: PSF
+  summary: Publication quality figures in Python
+  description: |
+    matplotlib is a python 2D plotting library which produces publication
+    quality figures in a variety of hardcopy formats and interactive
+    environments across platforms. matplotlib can be used in Python scripts,
+    the Python and IPython shell (ala MATLAB or Mathematica), web
+    application servers, and six graphical user interface toolkits.
+  dev_url: https://github.com/matplotlib/matplotlib/
+  doc_url: http://matplotlib.org/contents.html
+
+extra:
+  recipe-maintainers:
+    - mdboom
+    - ocefpaf
+    - pelson
+    - tacaswell
+    - dopplershift
