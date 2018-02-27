@@ -15,7 +15,3 @@ rc=$?; if [[ $rc != 0  ]]; then exit $rc; fi
 
 cp -a ${SOURCE_ROOT}/build/lib/libclang.so* ${PREFIX}/lib
 rc=$?; if [[ $rc != 0  ]]; then exit $rc; fi
-
-# Copy bindings/python/clang to ${PREFIX}/Lib/site-packages/clang.
-cp -r ${SOURCE_ROOT}/clang-git/bindings/python/clang "${SP_DIR}"
-rc=$?; if [[ $rc != 0  ]]; then exit $rc; fi

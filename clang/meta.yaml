@@ -1,4 +1,4 @@
-{% set VERSION = "3.9.0" %}
+{% set VERSION = "5.0.0" %}
 package:
   name: clang
   version: {{ VERSION }}
@@ -10,8 +10,7 @@ build:
 
 requirements:
   build:
-    - python
     - gcc # [not win]
     - cmake # [not win]
-    - pywget # [win]
-    - m2-p7zip # [win]
+    - curl # [win]
+    - m2-p7zip >=9.38.1 # [win]
