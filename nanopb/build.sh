@@ -1,14 +1,6 @@
 export NANO_SRC=nanopb-0.3.7
 export NANO_SRC_DIR=nanopb
 
-# Download Windows (32-bit) binary.
-"${PYTHON}" -m wget https://koti.kapsi.fi/~jpa/nanopb/download/${NANO_SRC}.tar.gz
-rc=$?; if [[ $rc != 0  ]]; then exit $rc; fi
-
-# Extract release from ZIP archive.
-tar xzf ${NANO_SRC}.tar.gz
-rc=$?; if [[ $rc != 0  ]]; then exit $rc; fi
-
 # Convert `nanopb_generator.py` to Python module
 mkdir nanopb_generator
 rc=$?; if [[ $rc != 0  ]]; then exit $rc; fi

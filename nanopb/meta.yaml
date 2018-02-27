@@ -1,29 +1,22 @@
+{% set PKG_NAME = 'nanopb' %}
+{% set VERSION = '0.3.7' %}
 package:
-  name: nanopb
-  version: 0.3.7
+  name: {{ PKG_NAME }}
+  version: {{ VERSION }}
+
+source:
+  url: https://koti.kapsi.fi/~jpa/nanopb/download/{{ PKG_NAME }}-{{ VERSION }}.tar.gz
 
 build:
-  # entry_points:
-    # Put any entry points (scripts to be generated automatically) here. The
-    # syntax is module:function.  For example
-    #
-    # - msgpack-python = msgpack-python:main
-    #
-    # Would create an entry point called msgpack-python that calls msgpack-python.main()
-
-  # If this is a new build for the same version, increment the build
-  # number. If you do not include this key, it defaults to 0.
   number: 0
 
 requirements:
   build:
-    - 7za # [win]
     - protoc # [win]
     - protobuf # [not win]
-    - python
-    - wget
+    - python {{ python }}
 
   run:
-    - python
+    - python {{ python }}
     - protoc # [win]
     - protobuf # [not win]
