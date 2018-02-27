@@ -1,17 +1,24 @@
+{% set name = 'paho-mqtt' %}
+{% set version = '1.2.3' %}
 package:
-    name: paho-mqtt
-    version: 1.2.3
+    name: {{ name }}
+    version: {{ version }}
+
+source:
+    url: https://pypi.python.org/packages/ce/27/28ac0859fb8d63754ec51659be265bf3b89d1568c5f6736d21026e11ea85/{{ name }}-{{ version }}.tar.gz
+    md5: 4bd192ea24e7aa347f6d240101ef82f6
 
 build:
-    number: 0
-    script: python -m pip install "paho-mqtt==1.2.3"
+    number: 1
+    script: python setup.py install --single-version-externally-managed --record=record.txt
+    noarch: python
 
 requirements:
     build:
-        - python 2.7*
+        - python
 
     run:
-        - python 2.7*
+        - python
 
 test:
     imports:
@@ -20,5 +27,5 @@ test:
         - paho.mqtt.publish
 
 about:
-  home: https://github.com/wheeler-microfluidics/paho-mqtt-recipe
+  home: https://github.com/sci-bots/paho-mqtt-recipe
   license: Eclipse Public License v1.0 / Eclipse Distribution License v1.0
