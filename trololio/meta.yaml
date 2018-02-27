@@ -1,8 +1,9 @@
+{% set PKG_NAME = 'trololio' %}
 {% set VERSION = '1.0.0' %}
 {% set REPO = 'https://github.com/sci-bots/Trololio' %}
 {% set COMMIT = 'v' + VERSION %}
 package:
-  name: platformio
+  name: {{ PKG_NAME }}
   version: {{ VERSION }}
 
 source:
