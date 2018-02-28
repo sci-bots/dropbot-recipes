@@ -1,7 +1,7 @@
 @echo off
 setlocal ENABLEDELAYEDEXPANSION
 
-set URL=http://llvm.org/releases/%PKG_VERSION%/LLVM-%PKG_VERSION%-win32.exe
+set URL=http://llvm.org/releases/%PKG_VERSION%/LLVM-%PKG_VERSION%-win%ARCH%.exe
 
 echo %URL%
 
