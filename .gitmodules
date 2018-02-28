@@ -4,3 +4,6 @@
 [submodule "slow-soft-wire"]
 	path = arduino/slow-soft-wire
 	url = git@github.com:sci-bots/arduino-slow-soft-wire-recipe.git
+[submodule "platformio"]
+	path = platformio
+	url = git@github.com:sci-bots/platformio-recipes.git
