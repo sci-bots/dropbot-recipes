@@ -37,3 +37,15 @@
 [submodule "_source/or-event"]
 	path = _source/or-event
 	url = git@github.com:sci-bots/or-event.git
+[submodule "_source/arduino-rpc"]
+	path = _source/arduino-rpc
+	url = git@github.com:sci-bots/arduino-rpc.git
+[submodule "_source/base-node-rpc"]
+	path = _source/base-node-rpc
+	url = git@github.com:sci-bots/base-node-rpc.git
+[submodule "_source/nadamq"]
+	path = _source/nadamq
+	url = git@github.com:sci-bots/nadamq.git
+[submodule "_source/teensy-minimal-rpc"]
+	path = _source/teensy-minimal-rpc
+	url = git@github.com:sci-bots/teensy-minimal-rpc.git
