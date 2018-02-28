@@ -1,0 +1,20 @@
+{% set VERSION = "0.1.157" %}
+package:
+    name: wheezy.routing
+    version: {{ VERSION }}
+
+build:
+    number: '0'
+    script: python -m pip install "{{ PKG_NAME }}=={{ VERSION }}"
+    noarch: python
+
+requirements:
+    build:
+        - python
+        - pip
+    run:
+        - python
+
+test:
+    imports:
+        - wheezy.routing
