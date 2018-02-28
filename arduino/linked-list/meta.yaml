@@ -1,0 +1,31 @@
+{% set PKG_NAME = 'arduino-linked-list' %}
+{% set LIB_NAME = 'LinkedList' %}
+{% set VERSION = '1.2.3' %}
+{% set GITHUB_USER = 'ivanseidel' %}
+package:
+  name: {{ PKG_NAME }}
+  version: {{ VERSION }}
+
+source:
+  url: https://github.com/{{ GITHUB_USER }}/{{ LIB_NAME }}/archive/{{ VERSION }}.tar.gz
+
+build:
+  # If this is a new build for the same version, increment the build
+  # number. If you do not include this key, it defaults to 0.
+  number: 3
+  script:
+    python -c
+      "import os.path; import os; import shutil;
+      CONDA_LIB_INC = os.environ.get('LIBRARY_INC',
+                                     os.path.join(os.environ['PREFIX'],
+                                                  'include'));
+      install_dir = os.path.join(CONDA_LIB_INC, 'Arduino', '{{ LIB_NAME }}');
+      shutil.copytree(os.environ['SRC_DIR'], install_dir);
+      BUILD_SCRIPT = os.path.join(install_dir, 'bld.bat');
+      BUILD_SCRIPT = BUILD_SCRIPT if os.path.isfile(BUILD_SCRIPT) else os.path.join(install_dir, 'build.sh');
+      os.remove(BUILD_SCRIPT);
+      "
+
+requirements:
+  build:
+    - python

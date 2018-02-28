@@ -1,0 +1,29 @@
+{% set PKG_NAME = 'arduino-fast-digital' %}
+{% set LIB_NAME = 'FastDigital' %}
+{% set VERSION = '0.1.0' %}
+package:
+  name: {{ PKG_NAME }}
+  version: {{ VERSION }}
+
+source:
+  path: .
+
+build:
+  # If this is a new build for the same version, increment the build
+  # number. If you do not include this key, it defaults to 0.
+  number: 1
+  script:
+    - python -c
+      "import os.path; import os; import shutil;
+      CONDA_LIB_INC = os.environ.get('LIBRARY_INC',
+                                     os.path.join(os.environ['PREFIX'],
+                                                  'include'));
+      install_dir = os.path.join(CONDA_LIB_INC, 'Arduino', '{{ LIB_NAME }}');
+      os.makedirs(install_dir);
+      shutil.copy2(os.path.join(os.environ['SRC_DIR'], '{{ LIB_NAME }}.h'),
+                   os.path.join(install_dir, '{{ LIB_NAME }}.h'));
+      "
+
+requirements:
+  build:
+    - python
