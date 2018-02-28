@@ -7,3 +7,33 @@
 [submodule "platformio"]
 	path = platformio
 	url = git@github.com:sci-bots/platformio-recipes.git
+[submodule "_source/arduino-helpers"]
+	path = _source/arduino-helpers
+	url = git@github.com:sci-bots/arduino-helpers.git
+[submodule "_source/arduino-memory"]
+	path = _source/arduino-memory
+	url = git@github.com:sci-bots/arduino-memory.git
+[submodule "_source/base-node"]
+	path = _source/base-node
+	url = git@github.com:sci-bots/base-node.git
+[submodule "_source/c-array-defs"]
+	path = _source/c-array-defs
+	url = git@github.com:sci-bots/c-array-defs.git
+[submodule "_source/clang-helpers"]
+	path = _source/clang-helpers
+	url = git@github.com:sci-bots/clang-helpers.git
+[submodule "_source/conda-helpers"]
+	path = _source/conda-helpers
+	url = git@github.com:sci-bots/conda-helpers.git
+[submodule "_source/logging-helpers"]
+	path = _source/logging-helpers
+	url = git@github.com:sci-bots/logging-helpers.git
+[submodule "_source/mqtt-messages-python"]
+	path = _source/mqtt-messages-python
+	url = git@github.com:sci-bots/mqtt-messages-python.git
+[submodule "_source/nanopb-helpers"]
+	path = _source/nanopb-helpers
+	url = git@github.com:sci-bots/nanopb-helpers.git
+[submodule "_source/or-event"]
+	path = _source/or-event
+	url = git@github.com:sci-bots/or-event.git
