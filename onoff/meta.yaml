@@ -1,0 +1,24 @@
+{% set VERSION = "1.0.1" %}
+package:
+    name: onoff
+    version: {{ VERSION }}
+
+build:
+    number: 0
+    script: python -m pip install "{{ PKG_NAME }}=={{ VERSION }}"
+    noarch: python
+
+requirements:
+    build:
+        - python
+
+    run:
+        - python
+
+test:
+    imports:
+        - onoff
+
+about:
+  home: https://github.com/sci-bots/onoff-recipe
+  license: Apache 2.0
