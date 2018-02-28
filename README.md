@@ -17,6 +17,36 @@ On Linux, the path is:
 
     <conda prefix>/include
 
+-------------------------------------------------
+
+# Build
+
+1. Install `conda-build`:
+
+       conda install -n root conda-build -c conda-forge
+
+2. Build DropBot **`noarch` dependencies** (use `grep` to find recipes containing
+   `noarch`):
+   - Windows Powershell:
+
+         conda build -c cfobel -c conda-forge --skip-existing $(grep noarch $(cmd /C dir /s/b meta.yaml) -l)
+   - Bash:
+
+         conda build -c cfobel -c conda-forge --skip-existing $(grep noarch $(find -name meta.yaml) -l)
+
+3. Build DropBot **platform-specific dependencies** (use `grep` to find recipes
+   which do not contain `noarch`):
+   - Windows Powershell:
+
+         conda build -c cfobel -c conda-forge --skip-existing $(grep noarch $(cmd /C dir /s/b meta.yaml) -L)
+   - Bash:
+
+         conda build -c cfobel -c conda-forge --skip-existing $(grep noarch $(find -name meta.yaml) -L)
+
+-------------------------------------------------
+
+# Packages
+
 ## DropBot `noarch` dependencies
 
 The following `dropbot` driver dependencies may be built as `noarch` and are compatible 
