@@ -55,3 +55,12 @@
 [submodule "_source/asyncserial.py3"]
 	path = _source/asyncserial.py3
 	url = https://github.com/m-labs/asyncserial
+[submodule ".\\_source\\serial-device"]
+	path = .\\_source\\serial-device
+	url = git@github.com:sci-bots/serial-device
+[submodule "_source/paho-mqtt-helpers"]
+	path = _source/paho-mqtt-helpers
+	url = git@github.com:sci-bots/paho-mqtt-helpers.git
+[submodule "_source/pandas-helpers"]
+	path = _source/pandas-helpers
+	url = git@github.com:sci-bots/pandas-helpers.git
