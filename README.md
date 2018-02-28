@@ -1,7 +1,8 @@
 # DropBot driver dependency Conda recipes
 
 This repository contains Conda build recipes for all `dropbot` driver
-dependencies.
+dependencies.  **Pre-built `win-32`/`win-64` Conda packages for Python 2.7 and
+Python 3.6 are available on the [`dropbot` Anaconda][dropbot-conda] channel.
 
 The packages are split into two types, based on whether or not they are
 platform-dependent (i.e., Windows, Linux, MacOS).  Platform-dependent packages typically
@@ -29,21 +30,29 @@ On Linux, the path is:
    `noarch`):
    - Windows Powershell:
 
-         conda build -c cfobel -c sci-bots -c conda-forge --skip-existing $(grep noarch $(cmd /C dir /s/b meta.yaml) -l)
+         conda build -c dropbot -c sci-bots -c conda-forge --skip-existing $(grep noarch $(cmd /C dir /s/b meta.yaml) -l)
    - Bash:
 
-         conda build -c cfobel -c sci-bots -c conda-forge --skip-existing $(grep noarch $(find -name meta.yaml) -l)
+         conda build -c dropbot -c sci-bots -c conda-forge --skip-existing $(grep noarch $(find -name meta.yaml) -l)
 
 3. Build DropBot **platform-specific dependencies** (use `grep` to find recipes
    which do not contain `noarch`):
    - Windows Powershell:
 
-         conda build -c cfobel -c sci-bots -c conda-forge --skip-existing $(grep noarch $(cmd /C dir /s/b meta.yaml) -L)
+         conda build --croot C:\bld -c dropbot -c sci-bots -c conda-forge -m variants.yaml --skip-existing $(grep noarch $(cmd /C dir /s/b meta.yaml) -L)
    - Bash:
 
-         conda build -c cfobel -c sci-bots -c conda-forge --skip-existing $(grep noarch $(find -name meta.yaml) -L)
+         conda build -c dropbot -c sci-bots -c conda-forge -m variants.yaml --skip-existing $(grep noarch $(find -name meta.yaml) -L)
 
-**Note: step _(3)_ uses `-m variants.yaml` to build against both Python 2.7 _and_ Python 3.6.**
+## Notes
+
+**Step _(3)_ uses:**
+
+ - `-m variants.yaml` to build against both Python 2.7 _and_ Python 3.6
+ - `--croot C:\bld` to shorten the file path length of the build environment to
+   avoid _"filename too long"_ or _"file does not exist"_ type errors.
+
+   This is a [known issue](https://github.com/conda/conda-build#gotchasfaq).
 
 -------------------------------------------------
 
@@ -73,6 +82,8 @@ across platforms (i.e., Windows, Linux, MacOS) and Python versions:
     _source/mqtt-messages-python/.conda-recipe/meta.yaml
     _source/nanopb-helpers/.conda-recipe/meta.yaml
     _source/or-event/.conda-recipe/meta.yaml
+    _source/pandas-helpers/.conda-recipe/meta.yaml
+    _source/serial-device/.conda-recipe/meta.yaml
 
 __**__: `asyncserial` has a different version for Python 2.7 and Python 3.5+,
 but both versions are compatible across platforms (i.e., Windows, Linux,
@@ -154,3 +165,5 @@ On Linux, the path is:
     <conda prefix>/include
 ```
 
+
+[dropbot-conda]: https://anaconda.org/dropbot/
