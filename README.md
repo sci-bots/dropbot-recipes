@@ -29,19 +29,21 @@ On Linux, the path is:
    `noarch`):
    - Windows Powershell:
 
-         conda build -c cfobel -c conda-forge --skip-existing $(grep noarch $(cmd /C dir /s/b meta.yaml) -l)
+         conda build -c cfobel -c sci-bots -c conda-forge --skip-existing $(grep noarch $(cmd /C dir /s/b meta.yaml) -l)
    - Bash:
 
-         conda build -c cfobel -c conda-forge --skip-existing $(grep noarch $(find -name meta.yaml) -l)
+         conda build -c cfobel -c sci-bots -c conda-forge --skip-existing $(grep noarch $(find -name meta.yaml) -l)
 
 3. Build DropBot **platform-specific dependencies** (use `grep` to find recipes
    which do not contain `noarch`):
    - Windows Powershell:
 
-         conda build -c cfobel -c conda-forge --skip-existing $(grep noarch $(cmd /C dir /s/b meta.yaml) -L)
+         conda build -c cfobel -c sci-bots -c conda-forge --skip-existing $(grep noarch $(cmd /C dir /s/b meta.yaml) -L)
    - Bash:
 
-         conda build -c cfobel -c conda-forge --skip-existing $(grep noarch $(find -name meta.yaml) -L)
+         conda build -c cfobel -c sci-bots -c conda-forge --skip-existing $(grep noarch $(find -name meta.yaml) -L)
+
+**Note: step _(3)_ uses `-m variants.yaml` to build against both Python 2.7 _and_ Python 3.6.**
 
 -------------------------------------------------
 

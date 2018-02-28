@@ -9,7 +9,7 @@ package:
   version: {{ version }}
 
 build:
-  number: 1
+  number: 2
   script: pip install "{{ pkg_name }}=={{ version }}"
 
 requirements:
@@ -41,7 +41,7 @@ requirements:
 
 test:
   requires:
-    - pycairo-gtk2  # [win and py2k]
+    - pycairo-gtk2  # [win32 and py2k]
   imports:
     - matplotlib
     - matplotlib.pyplot
@@ -51,7 +51,7 @@ test:
     - matplotlib._png
     - matplotlib._tri
     - matplotlib.backends._backend_agg
-    - matplotlib.backends._backend_gdk  # [win and py2k]
+    - matplotlib.backends._backend_gdk  # [win32 and py2k]
     - matplotlib.ft2font
     - matplotlib.ttconv
     - matplotlib.backends._tkagg  # [not win]
