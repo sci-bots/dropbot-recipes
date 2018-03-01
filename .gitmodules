@@ -64,3 +64,6 @@
 [submodule "_source/pandas-helpers"]
 	path = _source/pandas-helpers
 	url = git@github.com:sci-bots/pandas-helpers.git
+[submodule "_source/platformio-helpers"]
+	path = _source/platformio-helpers
+	url = git@github.com:sci-bots/platformio-helpers.git
