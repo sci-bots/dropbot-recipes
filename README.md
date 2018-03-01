@@ -2,7 +2,7 @@
 
 This repository contains Conda build recipes for all `dropbot` driver
 dependencies.  **Pre-built `win-32`/`win-64` Conda packages for Python 2.7 and
-Python 3.6 are available on the [`dropbot` Anaconda][dropbot-conda] channel.
+Python 3.6 are available on the [`dropbot` Anaconda][dropbot-conda] channel.**
 
 The packages are split into two types, based on whether or not they are
 platform-dependent (i.e., Windows, Linux, MacOS).  Platform-dependent packages typically
@@ -26,29 +26,19 @@ On Linux, the path is:
 
        conda install -n root conda-build -c conda-forge
 
-2. Build DropBot **`noarch` dependencies** (use `grep` to find recipes containing
-   `noarch`):
-   - Windows Powershell:
+2. Build DropBot dependencies (Windows Powershell or Bash):
 
-         conda build -c dropbot -c sci-bots -c conda-forge --skip-existing $(grep noarch $(cmd /C dir /s/b meta.yaml) -l)
-   - Bash:
-
-         conda build -c dropbot -c sci-bots -c conda-forge --skip-existing $(grep noarch $(find -name meta.yaml) -l)
-
-3. Build DropBot **platform-specific dependencies** (use `grep` to find recipes
-   which do not contain `noarch`):
-   - Windows Powershell:
-
-         conda build --croot C:\bld -c dropbot -c sci-bots -c conda-forge -m variants.yaml --skip-existing $(grep noarch $(cmd /C dir /s/b meta.yaml) -L)
-   - Bash:
-
-         conda build -c dropbot -c sci-bots -c conda-forge -m variants.yaml --skip-existing $(grep noarch $(find -name meta.yaml) -L)
+       conda build --croot C:\bld -c dropbot -c sci-bots -c conda-forge --skip-existing -m variants.yaml $(cat bootstrap-build-order.txt)
 
 ## Notes
 
-**Step _(3)_ uses:**
+**Step _(2)_ uses:**
 
- - `-m variants.yaml` to build against both Python 2.7 _and_ Python 3.6
+ - `$(cat bootstrap-build-order.txt)` to build recipes in dependency order,
+   such that each recipe will only be built after all dependency packages have
+   been built.
+ - `-m variants.yaml` to build against both Python 2.7 _and_ Python 3.6 (in
+   recipes that use [`{{ python }}` variant tag][variants]).
  - `--croot C:\bld` to shorten the file path length of the build environment to
    avoid _"filename too long"_ or _"file does not exist"_ type errors.
 
@@ -169,3 +159,4 @@ On Linux, the path is:
 
 
 [dropbot-conda]: https://anaconda.org/dropbot/
+[variants]: https://conda.io/docs/user-guide/tasks/build-packages/variants.html
