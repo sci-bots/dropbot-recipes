@@ -130,15 +130,17 @@ Python version:
 The following commands can be used to graft an existing recipe git
 repo to a subdirectory of this repo:
 
-    git remote add temp ...other recipe...
-    git fetch --all
-    git branch --no-track '"feat(<recipe package name>)"' temp/master
-    git remote rm temp
+```sh
+git remote add temp ...other recipe...
+git fetch --all
+git branch --no-track '"feat(<recipe package name>)"' temp/master
+git remote rm temp
 
-    git merge -s ours --no-commit '"feat(<recipe package name>)"' --allow-unrelated-histories
-    git read-tree -u --prefix=<recipe package name> '"feat(<recipe package name>)"'
+git merge -s ours --no-commit '"feat(<recipe package name>)"' --allow-unrelated-histories
+git read-tree -u --prefix=<recipe package name> '"feat(<recipe package name>)"'
 
-    git commit
+git commit
+```
 
 Example message to append to the merge commit:
 
