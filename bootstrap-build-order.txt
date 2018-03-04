@@ -4,7 +4,14 @@ paho-mqtt
 platformio/click
 platformio/platform-atmelavr
 platformio/platform-teensy
-platformio
+platformio/platformio-core
+platformio/framework-arduinoavr
+platformio/framework-arduinoteensy
+platformio/tool-avrdude
+platformio/tool-scons
+platformio/tool-teensy
+platformio/toolchain-atmelavr
+platformio/toolchain-gccarmnoneeabi
 clang
 python-clang
 si-prefix
@@ -31,8 +38,6 @@ arduino/linked-list
 arduino/slow-soft-i2c-master
 arduino/slow-soft-wire
 matplotlib
-matplotlib
-path_helpers
 ragel
 _source/arduino-memory
 _source/c-array-defs
