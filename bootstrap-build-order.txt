@@ -28,11 +28,10 @@ _source/asyncserial.py3
 _source/clang-helpers
 _source/conda-helpers
 _source/logging-helpers
-protoc
+_source/platformio-helpers
 nanopb
 _source/nanopb-helpers
 _source/or-event
-_source/platformio-helpers
 arduino/fast-digital
 arduino/linked-list
 arduino/slow-soft-i2c-master

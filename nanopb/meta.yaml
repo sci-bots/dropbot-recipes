@@ -19,17 +19,17 @@ build:
 
   # If this is a new build for the same version, increment the build
   # number. If you do not include this key, it defaults to 0.
-  number: 6
+  number: 7
 
 requirements:
   build:
     - patch
     - platformio-helpers >=0.6
-    - protoc  # [win]
+    - libprotobuf
     - protobuf
 
   run:
-    - protoc  # [win]
+    - libprotobuf
     - protobuf
 
 test:
