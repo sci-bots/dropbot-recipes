@@ -33,14 +33,19 @@ if errorlevel 1 exit 1
 
 REM Copy nanopb C source and headers to Arduino
 setlocal enableextensions
-md "%PREFIX%"\Library\include\Arduino\nanopb\src
+for /f "tokens=*" %%a in (
+'%PYTHON% -c "from __future__ import print_function; import platformio_helpers as pioh; print(pioh.conda_arduino_include_path(), end="""")"'
+) do (
+set INSTALL_DIR=%%a
+)
+md "%INSTALL_DIR%"\nanopb\src
+copy "%RECIPE_DIR%"\library.properties "%INSTALL_DIR%"\nanopb
+copy "%RECIPE_DIR%"\nanopb.h "%INSTALL_DIR%"\nanopb\src
+copy *.h "%INSTALL_DIR%"\nanopb\src
+copy *.c "%INSTALL_DIR%"\nanopb\src
+copy *.txt "%INSTALL_DIR%"\nanopb\src
+copy *.md "%INSTALL_DIR%"\nanopb\src
+copy AUTHORS "%INSTALL_DIR%"\nanopb\src
+copy BUILD "%INSTALL_DIR%"\nanopb\src
+copy CHANGELOG.txt "%INSTALL_DIR%"\nanopb\src
 endlocal
-copy "%RECIPE_DIR%"\library.properties "%PREFIX%"\Library\include\Arduino\nanopb
-copy "%RECIPE_DIR%"\nanopb.h "%PREFIX%"\Library\include\Arduino\nanopb\src
-copy *.h "%PREFIX%"\Library\include\Arduino\nanopb\src
-copy *.c "%PREFIX%"\Library\include\Arduino\nanopb\src
-copy *.txt "%PREFIX%"\Library\include\Arduino\nanopb\src
-copy *.md "%PREFIX%"\Library\include\Arduino\nanopb\src
-copy AUTHORS "%PREFIX%"\Library\include\Arduino\nanopb\src
-copy BUILD "%PREFIX%"\Library\include\Arduino\nanopb\src
-copy CHANGELOG.txt "%PREFIX%"\Library\include\Arduino\nanopb\src

@@ -40,13 +40,14 @@ chmod a+x "${PREFIX}"/bin/nanopb
 rc=$?; if [[ $rc != 0  ]]; then exit $rc; fi
 
 # Copy nanopb C source and headers to Arduino
-mkdir -p "${PREFIX}"/include/Arduino/nanopb/src
-cp -ra "${RECIPE_DIR}"/library.properties "${PREFIX}"/include/Arduino/nanopb
-cp -ra "${RECIPE_DIR}"/nanopb.h "${PREFIX}"/include/Arduino/nanopb/src
-cp -ra "${NANO_SRC_DIR}"/*.h "${PREFIX}"/include/Arduino/nanopb/src
-cp -ra "${NANO_SRC_DIR}"/*.c "${PREFIX}"/include/Arduino/nanopb/src
-cp -ra "${NANO_SRC_DIR}"/*.txt "${PREFIX}"/include/Arduino/nanopb/src
-cp -ra "${NANO_SRC_DIR}"/*.md "${PREFIX}"/include/Arduino/nanopb/src
-cp -ra "${NANO_SRC_DIR}"/AUTHORS "${PREFIX}"/include/Arduino/nanopb/src
-cp -ra "${NANO_SRC_DIR}"/BUILD "${PREFIX}"/include/Arduino/nanopb/src
-cp -ra "${NANO_SRC_DIR}"/CHANGELOG.txt "${PREFIX}"/include/Arduino/nanopb/src
+export INSTALL_DIR=$("${PYTHON}" -c "from __future__ import print_function; import platformio_helpers as pioh; print(pioh.conda_arduino_include_path(), end='')")
+mkdir -p "${INSTALL_DIR}"/nanopb/src
+cp -ra "${RECIPE_DIR}"/library.properties "${INSTALL_DIR}/nanopb
+cp -ra "${RECIPE_DIR}"/nanopb.h "${INSTALL_DIR}/nanopb/src
+cp -ra "${NANO_SRC_DIR}"/*.h "${INSTALL_DIR}/nanopb/src
+cp -ra "${NANO_SRC_DIR}"/*.c "${INSTALL_DIR}/nanopb/src
+cp -ra "${NANO_SRC_DIR}"/*.txt "${INSTALL_DIR}/nanopb/src
+cp -ra "${NANO_SRC_DIR}"/*.md "${INSTALL_DIR}/nanopb/src
+cp -ra "${NANO_SRC_DIR}"/AUTHORS "${INSTALL_DIR}/nanopb/src
+cp -ra "${NANO_SRC_DIR}"/BUILD "${INSTALL_DIR}/nanopb/src
+cp -ra "${NANO_SRC_DIR}"/CHANGELOG.txt "${INSTALL_DIR}/nanopb/src
