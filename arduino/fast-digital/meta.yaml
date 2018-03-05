@@ -11,14 +11,12 @@ source:
 build:
   # If this is a new build for the same version, increment the build
   # number. If you do not include this key, it defaults to 0.
-  number: 1
+  number: 2
+  noarch: generic
   script:
     - python -c
-      "import os.path; import os; import shutil;
-      CONDA_LIB_INC = os.environ.get('LIBRARY_INC',
-                                     os.path.join(os.environ['PREFIX'],
-                                                  'include'));
-      install_dir = os.path.join(CONDA_LIB_INC, 'Arduino', '{{ LIB_NAME }}');
+      "import os.path; import os; import shutil; import platformio_helpers as pioh;
+      install_dir = pioh.conda_arduino_include_path().joinpath('{{ LIB_NAME }}');
       os.makedirs(install_dir);
       shutil.copy2(os.path.join(os.environ['SRC_DIR'], '{{ LIB_NAME }}.h'),
                    os.path.join(install_dir, '{{ LIB_NAME }}.h'));
@@ -26,4 +24,5 @@ build:
 
 requirements:
   build:
+    - platformio-helpers >=0.6
     - python
