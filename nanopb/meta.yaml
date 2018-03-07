@@ -24,7 +24,7 @@ build:
 requirements:
   build:
     - patch
-    - platformio-helpers >=0.6
+    - platformio-helpers >=0.7
     - libprotobuf
     - protobuf
 

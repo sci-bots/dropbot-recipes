@@ -24,6 +24,6 @@ requirements:
 
 test:
   imports:
-    - clang
+    - clang >=5.0.0
     - clang.cindex
     - clang.enumerations
