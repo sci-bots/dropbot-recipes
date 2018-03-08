@@ -1,0 +1,33 @@
+{% if GIT_DESCRIBE_NUMBER > '0' %}
+{% set GIT_VERSION = GIT_DESCRIBE_TAG[1:] + '.post' + GIT_DESCRIBE_NUMBER %}
+{% else %}
+{% set GIT_VERSION = GIT_DESCRIBE_TAG[1:] %}
+{% endif %}
+# source will be downloaded prior to filling in jinja templates
+# Example assumes that this folder has setup.py in it
+source:
+  git_url: ../../../
+
+package:
+  name: crum
+  version: {{ GIT_VERSION }}
+
+build:
+  script: python setup.py install --single-version-externally-managed --record record.txt
+
+#requirements:
+  #build:
+    #- pip
+    #- python 2.7*
+
+  #run:
+    #- pip
+    #- python 2.7*
+
+test:
+  imports:
+    - crum
+
+about:
+  home: https://github.com/sci-bots/{{ PKG_NAME }}
+  license: BSD

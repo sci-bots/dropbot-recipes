@@ -1,0 +1,8 @@
+include README.md
+include RELEASE-VERSION
+include version.py
+include setup.py
+graft src
+prune *.pyc
+include versioneer.py
+include src/crum/_version.py
