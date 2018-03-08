@@ -1,6 +1,8 @@
-# Conda recipe update manager #
+# crum: Conda recipe update manager #
 
-Tools to manage a monorepo of Conda recipes
+![logo](static/logo.png)
+
+Tools to manage a monorepo of Conda recipes.
 
 -------------------------------------------------------------------------------
 
@@ -27,6 +29,12 @@ Contributors
 ------------
 
  - Christian Fobel ([@sci-bots](https://github.com/sci-bots))
+
+Credits
+-------
+
+Logo is public domain from
+[here](http://www.publicdomainfiles.com/show_file.php?id=13968371414517).
 
 
 [1]: https://www.arduino.cc/en/Reference/HomePage
