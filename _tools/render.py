@@ -1,7 +1,8 @@
 # coding: utf-8
+from __future__ import print_function
+from __future__ import unicode_literals
 import tempfile as tf
 
-from ruamel.yaml import YAML
 import conda_helpers as ch
 import pydash as _py
 import path_helpers as ph
@@ -44,19 +45,15 @@ def render(recipe_path, md5_hash, *args):
 
     Returns
     -------
-    dict
-        Rendered recipe object.
+    str
+        Rendered recipe text.
     '''
     recipe_path = ph.path(recipe_path).normpath()
     assert(recipe_path.read_md5() == md5_hash)
 
     tempdir = ph.path(tf.mkdtemp(prefix='recipe-%s-' % recipe_path.name))
     try:
-        rendered_recipe_path = tempdir.joinpath('meta.yaml')
         # Render Conda recipe.
-        ch.conda_exec('render', recipe_path, '--file', rendered_recipe_path,
-                      *args, verbose=False)
-        # Read rendered recipe.
-        return YAML().load(rendered_recipe_path.text())
+        return ch.conda_exec('render', recipe_path, *args, verbose=False)
     finally:
         tempdir.rmtree()

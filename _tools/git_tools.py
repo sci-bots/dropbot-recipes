@@ -136,10 +136,15 @@ def bump_requirements(recipe_objs):
     subpackage_info = OrderedDict([(_py.get(v, 'package.name'), pkg_resources
                                     .parse_version(_py.get(v,
                                                            'package.version')))
-                                   for v in recipe_objs.values()])
+                                   for recipe_objs_i in recipe_objs.values()
+                                   for v in recipe_objs_i])
+    start_subpackage_info = subpackage_info.copy()
 
-    for recipe_path_i, recipe_obj_i in recipe_objs.items():
-        requirements_i = find_requirements(recipe_obj_i, subpackage_info.keys())
+    for recipe_path_i, recipe_objs_i in recipe_objs.items():
+        requirements_i = []
+        for recipe_obj_ij in recipe_objs_i:
+            requirements_i += find_requirements(recipe_obj_ij,
+                                                subpackage_info.keys())
         if not requirements_i:
             continue
 
@@ -165,8 +170,9 @@ def bump_requirements(recipe_objs):
                                    recipe_path_i, j)]
 
         if updates_i:
-            print(recipe_obj_i['package']['name'],
-                  recipe_obj_i['package']['version'])
+            for recipe_obj_ij in recipe_objs_i:
+                print(recipe_obj_ij['package']['name'],
+                      recipe_obj_ij['package']['version'])
 
             recipe_lines_i = recipe_text_i.splitlines()
             for package_name_ij, source_version_ij, recipe_version_ij, \
@@ -179,11 +185,11 @@ def bump_requirements(recipe_objs):
             new_recipe_text_i = '\n'.join(recipe_lines_i + [''])
 
             version_type_i = version_type(recipe_path_i)
+            build_number_i = int(recipe_obj_ij['build'].get('number', 0))
             if version_type_i == GIT_SOURCE:
                 # The recipe is a sub-directory of the package source directory.
 
                 # Set `build.number` to 0
-                build_number_i = int(recipe_obj_i['build'].get('number', 0))
                 if build_number_i > 0:
                     print('  reset build number: {} -> {}'
                           .format(build_number_i, 0))
@@ -193,7 +199,7 @@ def bump_requirements(recipe_objs):
 
                 # Increment cached minor version number (but do not add tag)
                 version_str_i = (CRE_PRE_ALPHA_VERSION
-                                 .sub('', recipe_obj_i['package']['version']))
+                                 .sub('', recipe_obj_ij['package']['version']))
                 current_version_i = semantic_version.Version(version_str_i,
                                                              partial=True)
                 new_version_i = copy.copy(current_version_i)
@@ -202,13 +208,13 @@ def bump_requirements(recipe_objs):
 
                 print('  update cached version: {} -> {}'
                       .format(current_version_i, new_version_i))
-                subpackage_info[recipe_obj_i['package']['name']] = \
-                    pkg_resources.parse_version(str(new_version_i))
+                for recipe_obj_ij in recipe_objs_i:
+                    subpackage_info[recipe_obj_ij['package']['name']] = \
+                        pkg_resources.parse_version(str(new_version_i))
             else:
                 # Recipe is not part of package source directory.
 
                 # Increment build number, **not** package version.
-                build_number_i = int(recipe_obj_i['build'].get('number', 0))
                 print('  increment build number: {} -> {}'
                       .format(build_number_i, build_number_i + 1))
                 new_recipe_text_i = \
@@ -216,6 +222,7 @@ def bump_requirements(recipe_objs):
                            'build: {}'.format(build_number_i + 1),
                            new_recipe_text_i, flags=re.MULTILINE)
             recipe_path_i.write_text(new_recipe_text_i, linesep='\n')
+    return start_subpackage_info, subpackage_info
 
 
 def commit_recipes(repo, version_tag_prefix='v', dry_run=False):
