@@ -1,5 +1,6 @@
 # coding: utf-8
-from __future__ import absolute_import
+from __future__ import absolute_import, unicode_literals, print_function
+from argparse import ArgumentParser
 from collections import OrderedDict
 import datetime as dt
 import sys
@@ -12,8 +13,6 @@ from .render import render
 
 
 def parse_args(args=None):
-    from argparse import ArgumentParser
-
     parser = ArgumentParser()
     parser.add_argument('--cache-dir', type=ph.path, default=ph.path('.cache'),
                         help='Cache directory (default=`%(default)s`).')
@@ -35,7 +34,16 @@ def parse_args(args=None):
 
 def main(*args):
     args, render_args = parse_args(args)
-    memory = jl.Memory(cachedir=args.cache_dir, verbose=0)
+    render_recipes(args.cache_dir, args.recipe, render_args=render_args)
+
+
+def render_recipes(cache_dir, recipe, render_args=None):
+    if isinstance(recipe, str):
+        recipe = [recipe]
+    if render_args is None:
+        render_args = []
+
+    memory = jl.Memory(cachedir=cache_dir, verbose=0)
 
     _render = memory.cache(render)
 
@@ -46,7 +54,7 @@ def main(*args):
 
     results = OrderedDict()
 
-    for recipe_i in map(ph.path.normpath, args.recipe):
+    for recipe_i in map(ph.path.normpath, recipe):
         if recipe_i.isdir():
             recipes_i = list(map(ph.path, recipe_i.walkfiles('meta.yaml')))
             if len(recipes_i) > 1:
