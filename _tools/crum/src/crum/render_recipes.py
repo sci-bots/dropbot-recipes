@@ -34,7 +34,9 @@ def parse_args(args=None):
 
 def main(*args):
     args, render_args = parse_args(args)
-    render_recipes(args.cache_dir, args.recipe, render_args=render_args)
+    for recipe_i, result_i in render_recipes(args.cache_dir, args.recipe,
+                                             render_args=render_args):
+        yield recipe_i, result_i
 
 
 def render_recipes(cache_dir, recipe, render_args=None):
@@ -52,9 +54,7 @@ def render_recipes(cache_dir, recipe, render_args=None):
     click.secho('`{}`\n'.format(' '.join(render_args)), sys.stdout, fg='white')
     click.secho('Started at {}'.format(dt.datetime.now()), sys.stdout, fg='blue')
 
-    results = OrderedDict()
-
-    for recipe_i in map(ph.path.normpath, recipe):
+    for recipe_i in map(ph.path.normpath, (ph.path(r) for r in recipe)):
         if recipe_i.isdir():
             recipes_i = list(map(ph.path, recipe_i.walkfiles('meta.yaml')))
             if len(recipes_i) > 1:
@@ -73,16 +73,15 @@ def render_recipes(cache_dir, recipe, render_args=None):
             '''
             click.secho('  Rendering: ', sys.stdout, fg='magenta', nl=False)
             click.secho(recipe_i + '... ', sys.stdout, fg='white', nl=False)
-            result = _render(recipe_i, recipe_i.read_md5(), *render_args)
-            results[recipe_i] = result
+            result_i = _render(recipe_i, recipe_i.read_md5(), *render_args)
+            yield recipe_i, result_i
             click.secho('Done', sys.stdout, fg='green', nl=True)
             # print(yaml.dump(result, default_flow_style=False))
         except Exception as e:
             print(e)
             continue
     click.secho('Finished at {}'.format(dt.datetime.now()), sys.stdout, fg='blue')
-    return results
 
 
 if __name__ == '__main__':
-    results = main(*sys.argv[1:])
+    results = OrderedDict(main(*sys.argv[1:]))
