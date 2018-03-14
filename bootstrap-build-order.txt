@@ -23,7 +23,7 @@ ntfsutils
 path_helpers
 _source/serial-device/.conda-recipe
 _source/arduino-helpers/.conda-recipe
-_source/asyncserial/.conda-recipe
+_source/asyncserial/conda/asyncserial
 _source/clang-helpers/.conda-recipe
 _source/conda-helpers/.conda-recipe
 _source/logging-helpers/.conda-recipe
