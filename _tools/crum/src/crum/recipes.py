@@ -6,7 +6,6 @@ from __future__ import print_function
 from __future__ import unicode_literals
 from collections import OrderedDict
 import copy
-import os
 import path_helpers as ph
 import pkg_resources
 import re
@@ -193,10 +192,6 @@ def bump_requirements(recipe_objs, dry_run=False):
                                                            'package.version')))
                                    for recipe_objs_i in recipe_objs.values()
                                    for v in recipe_objs_i])
-    # Copy initial package infos, since we will modify it.
-    start_subpackage_info = subpackage_info.copy()
-
-    cwd = ph.path(os.getcwd())
 
     for recipe_path_i, recipe_objs_i in recipe_objs.items():
         requirements_i = []
@@ -234,17 +229,6 @@ def bump_requirements(recipe_objs, dry_run=False):
 
         if updates_i:
             changes_i = {'requirements': updates_i}
-            # Replace requirements lines for updated package versions in
-            # recipe text.
-            recipe_lines_i = recipe_text_i.splitlines()
-            for package_name_ij, source_version_ij, recipe_version_ij, \
-                    recipe_path_ij, line_number_ij in updates_i:
-                original_ij = recipe_lines_i[line_number_ij]
-                recipe_lines_i[line_number_ij] = \
-                    re.sub(package_name_ij + r'(\s+(\S+)?)?$',
-                           '{} >={}'.format(package_name_ij,
-                                            source_version_ij), original_ij)
-            new_recipe_text_i = '\n'.join(recipe_lines_i + [''])
 
             version_type_i = version_type(recipe_path_i)
             build_number_i = int(recipe_obj_ij['build'].get('number', 0))
@@ -254,9 +238,6 @@ def bump_requirements(recipe_objs, dry_run=False):
                 # Set `build.number` to 0
                 if build_number_i > 0:
                     changes_i['build.number'] = (build_number_i, 0)
-                    new_recipe_text_i = re.sub(r'''number:\s+['"]?\d+['"]?.*$''',
-                                               'number: 0', new_recipe_text_i,
-                                               flags=re.MULTILINE)
 
                 # Increment cached minor version number (but do not add tag)
                 version_str_i = (CRE_PRE_ALPHA_VERSION
@@ -269,6 +250,8 @@ def bump_requirements(recipe_objs, dry_run=False):
 
                 changes_i['package.version'] = (current_version_i,
                                                 new_version_i)
+                # Update reference version for other recipes that require this
+                # package so they use the most recent version.
                 for recipe_obj_ij in recipe_objs_i:
                     subpackage_info[recipe_obj_ij['package']['name']] = \
                         pkg_resources.parse_version(str(new_version_i))
@@ -278,14 +261,51 @@ def bump_requirements(recipe_objs, dry_run=False):
                 # Increment build number, **not** package version.
                 new_build_number_i = build_number_i + 1
                 changes_i['build.number'] = (build_number_i, new_build_number_i)
-                new_recipe_text_i = \
-                    re.sub(r'''number:\s+['"]?\d+['"]?.*$''',
-                           'number: {}'.format(new_build_number_i),
-                           new_recipe_text_i, flags=re.MULTILINE)
 
             # Write updated recipe to file.
             if not dry_run:
-                recipe_path_i.write_text(new_recipe_text_i, linesep='\n')
+                apply_changes(recipe_path_i, changes_i)
         else:
             changes_i = {}
         yield recipe_path_i, recipe_objs_i, changes_i
+
+
+def apply_changes(recipe_path, changes):
+    '''
+    Recursively bump required package versions.
+
+    Parameters
+    ----------
+    recipe_path : str
+        Path to a Conda build recipe.
+    changes : dict
+        Change to make to the recipe.
+
+    See also
+    --------
+    :func:`bump_requirements`
+
+
+    .. warning:: This function **modifies the recipe file in-place**.
+    '''
+    recipe_path = ph.path(recipe_path).normpath()
+    recipe_text = recipe_path.text()
+    # Replace requirements lines for updated package versions in
+    # recipe text.
+    recipe_lines = recipe_text.splitlines()
+    for package_name_i, source_version_i, recipe_version_i, recipe_path_i, \
+            line_number_i in changes.get('requirements', []):
+        original_i = recipe_lines[line_number_i]
+        recipe_lines[line_number_i] = \
+            re.sub(package_name_i + r'(\s+(\S+)?)?$',
+                   '{} >={}'.format(package_name_i, source_version_i),
+                   original_i)
+    new_recipe_text = '\n'.join(recipe_lines + [''])
+    if 'build.number' in changes:
+        new_recipe_text = \
+            re.sub(r'''number:\s+['"]?{}['"]?.*$'''
+                   .format(changes['build.number'][0]),
+                   'number: {}'.format(changes['build.number'][-1]),
+                   new_recipe_text, flags=re.MULTILINE)
+
+    recipe_path.write_text(new_recipe_text, linesep='\n')

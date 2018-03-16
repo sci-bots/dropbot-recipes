@@ -101,6 +101,13 @@ if __name__ == '__main__':
                             out_stream, fg='white', nl=False)
                 click.secho(' ({})'.format(cwd.relpathto(recipe_path_i)),
                             out_stream, fg='blue', nl=True)
+            for property_ in ('build.number', 'package.version'):
+                if property_ in changes_i:
+                    click.secho('    modify '.format(property_), out_stream,
+                                fg='blue', nl=False)
+                    click.secho('"{}": {} -> {}  '
+                                .format(property_, *changes_i[property_]),
+                                out_stream, fg='white', nl=True)
             for package_name_ij, source_version_ij, recipe_version_ij, \
                     recipe_path_ij, line_number_ij in \
                     changes_i.get('requirements', []):
