@@ -4,75 +4,13 @@ Conda bump helper functions.
 '''
 from __future__ import print_function
 from __future__ import unicode_literals
-from collections import OrderedDict
 import copy
-import pkg_resources
-import re
 
 import path_helpers as ph
-import pydash as _py
 import semantic_version
 
 from .gitpython_helpers import traverse, head_tag, diff_recursive
-
-
-VERSION_LITERAL = 'VERSION_LITERAL'
-GIT_EXTERNAL = 'GIT_EXTERNAL'
-GIT_SOURCE = 'GIT_SOURCE'
-GIT_UNKNOWN = 'GIT_UNKNOWN'
-
-CRE_PRE_ALPHA_VERSION = re.compile(r'\.?[a-z]+\d*')
-CRE_META_GIT_VERSION = re.compile(r'version:\s+.*GIT')
-CRE_META_GIT_URL = re.compile(r'git_url:\s+(?P<url>\S+)$', re.MULTILINE)
-
-BUMP_COMMIT_MESSAGE = ['build(conda): auto-bump require versions',
-                       '',
-                       'Automatically bump required packages to latest '
-                       'versions.']
-
-
-def version_type(recipe_path):
-    '''
-    Determine recipe version type.
-
-    Recipe versions:
-
-    #. ``VERSION_LITERAL``: version literal, e.g., ``version: 1.0.1``
-    #. git version, e.g., ``version: {{ GIT_VERSION }}``
-
-       #. ``GIT_EXTERNAL``: recipe external to git repo, e.g.,
-          ``git_url: https://github.com/sci-bots/...``
-       #. ``GIT_SOURCE``: recipe part of git repo, e.g., ``git_url: ../``
-       #. ``GIT_UNKNOWN``: no git repo URL
-
-    Returns
-    -------
-    str
-        Recipe version type, one of:  ``'VERSION_LITERAL', 'GIT_EXTERNAL',
-        'GIT_SOURCE', 'GIT_UNKNOWN'``.
-    '''
-    recipe_path = ph.path(recipe_path)
-    recipe_text = recipe_path.text()
-
-    git_version_match = CRE_META_GIT_VERSION.search(recipe_text)
-
-    if not git_version_match:
-        return VERSION_LITERAL
-
-    url_match = CRE_META_GIT_URL.search(recipe_text)
-    if not url_match:
-        # Package version uses git-based version, but source is not from a
-        # `git_url`.
-        # XXX This shouldn't happen, since recipe rendering would likely fail,
-        # but handle it just in case.
-        return GIT_UNKNOWN
-
-    url = url_match.group('url')
-    git_location = recipe_path.parent.joinpath(url).realpath()
-    if not git_location.exists():
-        return GIT_EXTERNAL
-    else:
-        return GIT_SOURCE
+from .recipes import version_type, BUMP_COMMIT_MESSAGE
 
 
 def roll_back_bump(repo):
@@ -110,119 +48,6 @@ def roll_back_bump(repo):
                   repo_root.relpathto(repo_i.working_tree_dir),
                   HEAD_message + ' (tag: {})'.format(head_tag_i)
                   if head_tag_i else '')
-
-
-def find_requirements(recipe_obj, package_name):
-    '''
-    Find all ``requirements`` sections in the Conda build recipe.
-    '''
-    if isinstance(package_name, str):
-        package_name = [package_name]
-    recipe_obj = _py.clone_deep(recipe_obj)
-    matches = []
-    _py.map_values_deep(recipe_obj, iteratee=lambda value, path:
-                        matches.append((value.split(' ')[0], value, path))
-                        if (len(path) > 2 and path[-3] == 'requirements'
-                            and isinstance(value, str)
-                            and value.split(' ')[0] in package_name)
-                        else None)
-    return matches
-
-
-def bump_requirements(recipe_objs):
-    '''
-    Recursively bump required package versions.
-    '''
-    subpackage_info = OrderedDict([(_py.get(v, 'package.name'), pkg_resources
-                                    .parse_version(_py.get(v,
-                                                           'package.version')))
-                                   for recipe_objs_i in recipe_objs.values()
-                                   for v in recipe_objs_i])
-    start_subpackage_info = subpackage_info.copy()
-
-    for recipe_path_i, recipe_objs_i in recipe_objs.items():
-        requirements_i = []
-        for recipe_obj_ij in recipe_objs_i:
-            requirements_i += find_requirements(recipe_obj_ij,
-                                                subpackage_info.keys())
-        if not requirements_i:
-            continue
-
-        RE_SIMPLE_REQUIREMENT = (r'^(?P<padding>\s+)-\s+(?P<name>%s)'
-                                 r'(?P<foo>\s+(?P<ge>>=)?'
-                                 r'(?P<version>[0-9\.a-zA-Z]+))?$' %
-                                 '|'.join(v[0] for v in requirements_i))
-        CRE_SIMPLE_REQUIREMENT = re.compile(RE_SIMPLE_REQUIREMENT)
-        recipe_text_i = recipe_path_i.text()
-
-        updates_i = []
-        for j, line_ij in enumerate(recipe_text_i.splitlines()):
-            match_ij = CRE_SIMPLE_REQUIREMENT.match(line_ij)
-            if match_ij:
-                d_ij = match_ij.groupdict()
-                source_version_ij = subpackage_info[d_ij['name']]
-                recipe_version_ij = pkg_resources.parse_version(d_ij['version']
-                                                                or '0.0.0')
-                if source_version_ij > recipe_version_ij:
-                    updates_i += [(d_ij['name'],
-                                   source_version_ij,
-                                   recipe_version_ij,
-                                   recipe_path_i, j)]
-
-        if updates_i:
-            for recipe_obj_ij in recipe_objs_i:
-                print(recipe_obj_ij['package']['name'],
-                      recipe_obj_ij['package']['version'])
-
-            recipe_lines_i = recipe_text_i.splitlines()
-            for package_name_ij, source_version_ij, recipe_version_ij, \
-                    recipe_path_ij, line_number_ij in updates_i:
-                original_ij = recipe_lines_i[line_number_ij]
-                recipe_lines_i[line_number_ij] = \
-                    re.sub(package_name_ij + r'(\s+(\S+)?)?$',
-                           '{} >={}'.format(package_name_ij,
-                                            source_version_ij), original_ij)
-            new_recipe_text_i = '\n'.join(recipe_lines_i + [''])
-
-            version_type_i = version_type(recipe_path_i)
-            build_number_i = int(recipe_obj_ij['build'].get('number', 0))
-            if version_type_i == GIT_SOURCE:
-                # The recipe is a sub-directory of the package source directory.
-
-                # Set `build.number` to 0
-                if build_number_i > 0:
-                    print('  reset build number: {} -> {}'
-                          .format(build_number_i, 0))
-                    new_recipe_text_i = re.sub(r'''build:\s+['"]?\d+['"]?.*$''',
-                                               'build: 0', new_recipe_text_i,
-                                               flags=re.MULTILINE)
-
-                # Increment cached minor version number (but do not add tag)
-                version_str_i = (CRE_PRE_ALPHA_VERSION
-                                 .sub('', recipe_obj_ij['package']['version']))
-                current_version_i = semantic_version.Version(version_str_i,
-                                                             partial=True)
-                new_version_i = copy.copy(current_version_i)
-                new_version_i.minor += 1
-                new_version_i.patch = None
-
-                print('  update cached version: {} -> {}'
-                      .format(current_version_i, new_version_i))
-                for recipe_obj_ij in recipe_objs_i:
-                    subpackage_info[recipe_obj_ij['package']['name']] = \
-                        pkg_resources.parse_version(str(new_version_i))
-            else:
-                # Recipe is not part of package source directory.
-
-                # Increment build number, **not** package version.
-                print('  increment build number: {} -> {}'
-                      .format(build_number_i, build_number_i + 1))
-                new_recipe_text_i = \
-                    re.sub(r'''build:\s+['"]?\d+['"]?.*$''',
-                           'build: {}'.format(build_number_i + 1),
-                           new_recipe_text_i, flags=re.MULTILINE)
-            recipe_path_i.write_text(new_recipe_text_i, linesep='\n')
-    return start_subpackage_info, subpackage_info
 
 
 def commit_recipes(repo, version_tag_prefix='v', dry_run=False):
