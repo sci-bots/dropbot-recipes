@@ -11,7 +11,7 @@ source:
 build:
   # If this is a new build for the same version, increment the build
   # number. If you do not include this key, it defaults to 0.
-  number: 2
+  number: 3
   noarch: generic
   script:
     - python -c
@@ -24,5 +24,5 @@ build:
 
 requirements:
   build:
-    - platformio-helpers >=0.7
+    - platformio-helpers >=0.8
     - python
