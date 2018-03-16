@@ -1,16 +1,12 @@
-{% if GIT_DESCRIBE_NUMBER > '0' %}
-{% set GIT_VERSION = GIT_DESCRIBE_TAG[1:] + '.post' + GIT_DESCRIBE_NUMBER %}
-{% else %}
-{% set GIT_VERSION = GIT_DESCRIBE_TAG[1:] %}
-{% endif %}
-# source will be downloaded prior to filling in jinja templates
-# Example assumes that this folder has setup.py in it
+{% set PKG_NAME = 'crum' %}
+{% set version = '0.1' %}
+
 source:
-  git_url: ../../../
+  url: ..
 
 package:
-  name: crum
-  version: {{ GIT_VERSION }}
+  name: {{ PKG_NAME }}
+  version: {{ version }}
 
 build:
   script: python setup.py install --single-version-externally-managed --record record.txt
