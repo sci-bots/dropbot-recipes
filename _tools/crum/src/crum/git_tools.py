@@ -2,10 +2,14 @@
 u'''
 Conda bump helper functions.
 '''
-from __future__ import print_function
-from __future__ import unicode_literals
+# coding: utf-8
+from __future__ import absolute_import, unicode_literals, print_function
+from argparse import ArgumentParser
 import copy
+import os
+import sys
 
+import git
 import path_helpers as ph
 import semantic_version
 
@@ -135,3 +139,52 @@ def commit_recipes(repo, version_tag_prefix='v', dry_run=False):
                     print('`git tag {}`'.format(' '.join(tag_args_i)))
                 else:
                     repo_i.git.tag(*tag_args_i)
+
+
+def parse_args(args=None):
+    if args is None:
+        args = sys.argv[1:]
+
+    parser = ArgumentParser()
+    subparsers = parser.add_subparsers(dest='command')
+    commit_parser = subparsers.add_parser('commit')
+    subparsers.add_parser('roll_back')
+    commit_parser.add_argument('-v', '--version-prefix', help='git tag '
+                               'version prefix (default=`%(default)s`)',
+                               default='v')
+    commit_parser.add_argument('-n', '--dry-run', help='Dry run',
+                               action='store_true')
+
+    return parser.parse_args()
+
+
+def find_crum_root(dir_path=None):
+    if dir_path is None:
+        dir_path = os.getcwd()
+    root = ph.path(dir_path).realpath()
+
+    while root.basename() and not root.files('crum.yaml'):
+        root = root.parent
+        if not root.basename():
+            break
+    else:
+        return root
+    raise IOError('Not a crum project (could not find `crum.yaml`).')
+
+
+def main(*args):
+    args_ = parse_args(*args)
+
+    root = find_crum_root()
+    repo = git.Repo(root)
+
+    if args_.command == 'commit':
+        commit_recipes(repo, version_tag_prefix=args_.version_prefix,
+                       dry_run=args_.dry_run)
+    elif args_.command == 'roll_back':
+        # XXX TODO Add dry-run mode.
+        roll_back_bump(repo)
+
+
+if __name__ == '__main__':
+    main()
