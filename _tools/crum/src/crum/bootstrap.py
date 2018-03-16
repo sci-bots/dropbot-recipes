@@ -3,13 +3,11 @@ from __future__ import absolute_import, unicode_literals, print_function
 from argparse import ArgumentParser
 import sys
 
-from ruamel.yaml import YAML
-from ruamel.yaml.constructor import DuplicateKeyError
 import click
 import conda_helpers as ch
 import path_helpers as ph
 
-from .render_recipes import render_recipes
+from .recipes import render_recipes, recipe_objs
 
 
 def parse_args(args=None):
@@ -42,19 +40,6 @@ def parse_args(args=None):
         else:
             render_args += ['-c', channel]
     return args, render_args
-
-
-def recipe_objs(recipe_str):
-    try:
-        return [YAML().load(recipe_str)]
-    except DuplicateKeyError:
-        # multiple outputs from recipe
-        lines = recipe_str.splitlines()
-        package_starts = [i for i, line_i in enumerate(lines)
-                          if line_i.startswith('package:')]
-        return [YAML().load('\n'.join(lines[start:end]))
-                for start, end in zip(package_starts, package_starts[1:] +
-                                      [len(lines)])]
 
 
 def bootstrap(cache_dir, recipes_file, render_args=None):

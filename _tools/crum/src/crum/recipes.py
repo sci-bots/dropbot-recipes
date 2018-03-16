@@ -2,17 +2,27 @@
 u'''
 Helper functions to process Conda recipes, e.g., to determine build order.
 '''
-from __future__ import print_function
-from __future__ import unicode_literals
+from __future__ import absolute_import, unicode_literals, print_function
+from argparse import ArgumentParser
 from collections import OrderedDict
 import copy
+import datetime as dt
+import io
+import os
 import path_helpers as ph
 import pkg_resources
 import re
+import sys
 
+from ruamel.yaml import YAML
+from ruamel.yaml.constructor import DuplicateKeyError
+import click
+import joblib as jl
 import networkx as nx
 import pydash as _py
 import semantic_version
+
+from .render import render
 
 
 VERSION_LITERAL = 'VERSION_LITERAL'
@@ -28,6 +38,16 @@ BUMP_COMMIT_MESSAGE = ['build(conda): auto-bump require versions',
                        '',
                        'Automatically bump required packages to latest '
                        'versions.']
+
+
+CRUM_BASE_PARSER = ArgumentParser(add_help=False)
+CRUM_BASE_PARSER.add_argument('--cache-dir', type=ph.path, help='Cache '
+                              'directory (default=`.cache`).')
+CRUM_BASE_PARSER.add_argument('-f', '--config-file', type=ph.path, help='crum '
+                              'config' ' file (default=`%(default)s`)',
+                              default=ph.path('crum.yaml'))
+CRUM_BASE_PARSER.add_argument('--build-dir', help='Conda build output dir '
+                              '(default=`./conda-bld`)', type=ph.path)
 
 
 def find_requirements(recipe_obj, package_name):
@@ -309,3 +329,119 @@ def apply_changes(recipe_path, changes):
                    new_recipe_text, flags=re.MULTILINE)
 
     recipe_path.write_text(new_recipe_text, linesep='\n')
+
+
+def load_recipes(crum_config_file, build_dir=None, cache_dir=None, **kwargs):
+    crum_config_file = ph.path(crum_config_file).realpath()
+    crum_config = YAML().load(crum_config_file)
+    crum_dir = crum_config_file.realpath().parent
+
+    cwd = ph.path(os.getcwd())
+    if build_dir is None:
+        build_dir = crum_config.get('build_dir', crum_dir.joinpath('conda-bld'))
+    else:
+        build_dir = ph.path(build_dir).normpath()
+    if cache_dir is None:
+        cache_dir = crum_config.get('cache_dir', crum_dir.joinpath('.cache'))
+    else:
+        cache_dir = ph.path(cache_dir).normpath()
+
+    render_args = (crum_config['render_args'] if 'render_args' in crum_config
+                   else [])
+    rel_build_dir = (cwd.relpathto(build_dir)
+                     if build_dir.startswith(cwd) else build_dir)
+
+    # Add build directory as channel.
+    for channel in (['file:///' + rel_build_dir] +
+                    crum_config.get('channels', [])):
+        for i in range(len(render_args) - 1):
+            # Avoid adding a duplicate channel.
+            if render_args[i:i + 2] == ['-c', channel]:
+                break
+        else:
+            render_args += ['-c', channel]
+
+    try:
+        os.chdir(crum_dir)
+        recipes = [ph.path(r).realpath().joinpath('meta.yaml')
+                   for r in crum_config.get('recipes', [])]
+        return render_recipes(cache_dir, recipes, render_args, **kwargs)
+    except KeyboardInterrupt:
+        click.clear()
+        raise
+    finally:
+        os.chdir(cwd)
+
+
+def load_recipe_objs(crum_config_file, build_dir=None, cache_dir=None,
+                     **kwargs):
+    recipes = load_recipes(crum_config_file, build_dir=None, cache_dir=None,
+                           **kwargs)
+    return OrderedDict([(k, recipe_objs(v)) for k, v in recipes])
+
+
+def render_recipes(cache_dir, recipe, render_args=None, verbose=False):
+    if verbose is True:
+        # Write to `stdout` by default.
+        stream = sys.stdout
+    elif verbose is False or verbose is None:
+        # Capture/hide all output.
+        stream = io.StringIO()
+    else:
+        # Assume stream object was passed.
+        stream = verbose
+
+    if isinstance(recipe, str):
+        recipe = [recipe]
+    if render_args is None:
+        render_args = []
+
+    memory = jl.Memory(cachedir=cache_dir, verbose=0)
+
+    _render = memory.cache(render)
+
+    click.secho('Render recipes with the following arguments: ', stream,
+                fg='magenta', nl=False)
+    click.secho('`{}`\n'.format(' '.join(render_args)), stream, fg='white')
+    click.secho('Started at {}'.format(dt.datetime.now()), stream, fg='blue')
+
+    for recipe_i in map(ph.path.normpath, (ph.path(r) for r in recipe)):
+        if recipe_i.isdir():
+            recipes_i = list(map(ph.path, recipe_i.walkfiles('meta.yaml')))
+            if len(recipes_i) > 1:
+                raise IOError('More than one recipe found in %s: `%s`' %
+                              (recipe_i, recipes_i))
+            elif len(recipes_i) == 1:
+                recipe_i = recipes_i[0]
+            else:
+                raise IOError('No recipe found in `%s`' % recipe_i)
+        try:
+            '''
+            Colors
+            ------
+
+            black red green yellow blue magenta cyan white
+            '''
+            click.secho('  Rendering: ', stream, fg='magenta', nl=False)
+            click.secho(recipe_i + '... ', stream, fg='white', nl=False)
+            result_i = _render(recipe_i, recipe_i.read_md5(), *render_args)
+            yield recipe_i, result_i
+            click.secho('Done', stream, fg='green', nl=True)
+            # print(yaml.dump(result, default_flow_style=False))
+        except Exception as e:
+            print(e)
+            continue
+    click.secho('Finished at {}'.format(dt.datetime.now()), stream, fg='blue')
+
+
+def recipe_objs(recipe_str):
+    try:
+        return [YAML().load(recipe_str)]
+    except DuplicateKeyError:
+        # multiple outputs from recipe
+        lines = recipe_str.splitlines()
+        package_starts = [i for i, line_i in enumerate(lines)
+                          if line_i.startswith('package:')]
+        return [YAML().load('\n'.join(lines[start:end]))
+                for start, end in zip(package_starts, package_starts[1:] +
+                                      [len(lines)])]

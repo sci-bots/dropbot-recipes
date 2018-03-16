@@ -9,20 +9,11 @@ from ruamel.yaml import YAML
 import click
 import path_helpers as ph
 
-from .bootstrap import recipe_objs
-from .render_recipes import render_recipes
 import crum.recipes
 
 
 def parse_args(args=None):
-    parser = ArgumentParser()
-    parser.add_argument('--cache-dir', type=ph.path,
-                        help='Cache directory (default=`.cache`).')
-    parser.add_argument('-f', '--config-file', type=ph.path, help='crum config'
-                        ' file (default=`%(default)s`)',
-                        default=ph.path('crum.yaml'))
-    parser.add_argument('--build-dir', help='Conda build output dir '
-                        '(default=`./conda-bld`)', type=ph.path)
+    parser = ArgumentParser(parents=[crum.recipes.CRUM_BASE_PARSER])
     parser.add_argument('-n', '--dry-run', help='Dry run (no file '
                         'modifications)', action='store_true')
 
@@ -30,43 +21,21 @@ def parse_args(args=None):
         args = sys.argv[1:]
 
     args = parser.parse_args(args=args)
-    crum_config = YAML().load(args.config_file)
-    crum_dir = args.config_file.realpath().parent
-    cwd = ph.path(os.getcwd())
-    if args.build_dir is None:
-        args.build_dir = crum_config.get('build_dir',
-                                         crum_dir.joinpath('conda-bld'))
-    else:
-        args.build_dir = args.build_dir.normpath()
-    if args.cache_dir is None:
-        args.cache_dir = crum_config.get('cache_dir',
-                                         crum_dir.joinpath('.cache'))
-    else:
-        args.cache_dir = args.cache_dir.normpath()
-
-    render_args = (crum_config['render_args'] if 'render_args' in crum_config
-                   else [])
-    rel_build_dir = (cwd.relpathto(args.build_dir)
-                     if args.build_dir.startswith(cwd) else args.build_dir)
-    for channel in ['file:///' + rel_build_dir] + crum_config.get('channels',
-                                                                  []):
-        for i in range(len(render_args) - 1):
-            if render_args[i:i + 2] == ['-c', channel]:
-                break
-        else:
-            render_args += ['-c', channel]
-    return args, render_args
+    return args
 
 
 if __name__ == '__main__':
-    args, render_args = parse_args()
+    args = parse_args()
 
     crum_config = YAML().load(args.config_file)
-    recipes = (ph.path(r).realpath().joinpath('meta.yaml')
-               for r in crum_config.get('recipes', []))
     try:
-        results = render_recipes(args.cache_dir, recipes, render_args)
-        recipe_objs_ = OrderedDict([(k, recipe_objs(v)) for k, v in results])
+        out_stream = sys.stdout
+
+        # Load rendered recipes specified in `crum` config file.
+        recipe_objs_ = crum.recipes.load_recipe_objs(args.config_file,
+                                                     build_dir=args.build_dir,
+                                                     cache_dir=args.cache_dir,
+                                                     verbose=out_stream)
 
         # Determine package dependency build order.
         dependency_graph = crum.recipes.dependency_graph(recipe_objs_)
@@ -77,8 +46,6 @@ if __name__ == '__main__':
                                           recipe_objs_[dependency_graph
                                                        .node[r]['recipe']])
                                          for r in build_order])
-
-        out_stream = sys.stdout
 
         # Bump requirements in recipes based on rendered recipe versions.
         click.secho('\n' + '-' * 72, out_stream, fg='blue')
