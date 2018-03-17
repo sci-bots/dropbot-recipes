@@ -9,6 +9,7 @@ import copy
 import os
 import sys
 
+import click
 import git
 import path_helpers as ph
 import semantic_version
@@ -17,7 +18,7 @@ from .gitpython_helpers import traverse, head_tag, diff_recursive
 from .recipes import version_type, BUMP_COMMIT_MESSAGE
 
 
-def roll_back_bump(repo):
+def roll_back_bump(repo, dry_run=False):
     '''
     Roll back most recent auto-bump through a **hard reset** to the
     previous commit (i.e., ``git reset --hard HEAD~1``).
@@ -30,28 +31,34 @@ def roll_back_bump(repo):
     ----------
     repo : git.Repo
         Repository to roll back.
+    dry_run : bool, optional
+        If ``True``, do not modify any files, only log what changes would be
+        made.
     '''
-    repo_root = ph.path(repo.working_tree_dir)
-
     for repo_i in traverse(repo):
         HEAD_message = repo_i.head.commit.message.splitlines()[0].strip()
+        actions_i = []
         if HEAD_message.startswith(u'build(conda): auto-bump require versions'):
-            print('Roll back:', repo_root.relpathto(repo_i.working_tree_dir))
-            print('       original:', HEAD_message)
             # Delete tag referencing `HEAD` commit (if available).
             roll_back_tag_i = head_tag(repo_i)
             if roll_back_tag_i:
-                repo_i.git.tag('-d', roll_back_tag_i.name)
+                actions_i.append({'action': 'tag',
+                                  'tag': roll_back_tag_i,
+                                  'args': ('-d', roll_back_tag_i.name)})
             # Roll-back to previous commit.
-            repo_i.git.reset('--hard', 'HEAD~1')
-            print('    rolled-back:',
-                  repo_i.head.commit.message.splitlines()[0].strip())
-        else:
-            head_tag_i = head_tag(repo_i)
-            print('No roll back needed:',
-                  repo_root.relpathto(repo_i.working_tree_dir),
-                  HEAD_message + ' (tag: {})'.format(head_tag_i)
-                  if head_tag_i else '')
+            previous_commit = repo_i.commit('HEAD~1')
+            actions_i.append({'action': 'reset',
+                              'commit': previous_commit,
+                              'args': ('--hard', previous_commit.hexsha)})
+            if not dry_run:
+                apply_actions(repo_i, actions_i)
+        yield repo_i, actions_i
+
+
+def apply_actions(repo, actions):
+    for action_i in actions:
+        func = getattr(repo.git, action_i['action'])
+        func(*action_i['args'])
 
 
 def commit_recipes(repo, version_tag_prefix='v', dry_run=False):
@@ -148,7 +155,9 @@ def parse_args(args=None):
     parser = ArgumentParser()
     subparsers = parser.add_subparsers(dest='command')
     commit_parser = subparsers.add_parser('commit')
-    subparsers.add_parser('roll_back')
+    roll_back_parser = subparsers.add_parser('roll_back')
+    roll_back_parser.add_argument('-n', '--dry-run', help='Dry run',
+                                  action='store_true')
     commit_parser.add_argument('-v', '--version-prefix', help='git tag '
                                'version prefix (default=`%(default)s`)',
                                default='v')
@@ -172,18 +181,44 @@ def find_crum_root(dir_path=None):
     raise IOError('Not a crum project (could not find `crum.yaml`).')
 
 
-def main(*args):
-    args_ = parse_args(*args)
+def main(*_args):
+    args = parse_args(*_args)
 
     root = find_crum_root()
     repo = git.Repo(root)
+    repo_root = ph.path(repo.working_tree_dir)
 
-    if args_.command == 'commit':
-        commit_recipes(repo, version_tag_prefix=args_.version_prefix,
-                       dry_run=args_.dry_run)
-    elif args_.command == 'roll_back':
-        # XXX TODO Add dry-run mode.
-        roll_back_bump(repo)
+    if args.command == 'commit':
+        commit_recipes(repo, version_tag_prefix=args.version_prefix,
+                       dry_run=args.dry_run)
+    elif args.command == 'roll_back':
+        for repo_i, actions_i in roll_back_bump(repo, dry_run=args.dry_run):
+            HEAD_message = repo_i.head.commit.message.splitlines()[0].strip()
+            if not actions_i:
+                head_tag_i = head_tag(repo_i)
+                click.secho('No roll back needed: ', fg='magenta', nl=False)
+                click.secho('{} {}'.format(repo_root
+                                           .relpathto(repo_i.working_tree_dir),
+                                           HEAD_message + ' (tag: {})'
+                                           .format(head_tag_i)
+                                           if head_tag_i else ''), fg='white',
+                            nl=True)
+            else:
+                click.secho('Roll back{}: '.format(' (dry-run)' if args.dry_run
+                                                   else ''), fg='red',
+                            nl=False)
+                click.secho(repo_root.relpathto(repo_i.working_tree_dir),
+                            fg='white', nl=True)
+                for action_ij in actions_i:
+                    if action_ij['action'] == 'reset':
+                        click.secho('  reset: ', fg='blue', nl=False)
+                        click.secho(HEAD_message, fg='white', nl=False)
+                        click.secho(' -> ', fg='blue', nl=False)
+                        click.secho(action_ij['commit'].message.splitlines()[0]
+                                    .strip(), fg='white', nl=True)
+                    elif action_ij['action'] == 'tag':
+                        click.secho('  delete tag: ', fg='blue', nl=False)
+                        click.secho(action_ij['tag'].name, fg='white', nl=True)
 
 
 if __name__ == '__main__':
