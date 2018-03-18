@@ -8,6 +8,7 @@ from collections import OrderedDict
 import copy
 import datetime as dt
 import io
+import itertools as it
 import os
 import path_helpers as ph
 import pkg_resources
@@ -331,7 +332,7 @@ def apply_changes(recipe_path, changes):
     recipe_path.write_text(new_recipe_text, linesep='\n')
 
 
-def load_recipes(crum_config_file, build_dir=None, cache_dir=None, **kwargs):
+def resolve_args(crum_config_file, build_dir=None, cache_dir=None):
     crum_config_file = ph.path(crum_config_file).realpath()
     crum_config = YAML().load(crum_config_file)
     crum_dir = crum_config_file.realpath().parent
@@ -361,11 +362,28 @@ def load_recipes(crum_config_file, build_dir=None, cache_dir=None, **kwargs):
         else:
             render_args += ['-c', channel]
 
+    build_args = ['--skip-existing', '--croot', build_dir]
+    channels_args = list(it.chain(*(('-c', channel) for channel in
+                                    crum_config.get('channels', []))))
+    build_args += channels_args
+
+    return {'build_dir': build_dir,
+            'cache_dir': cache_dir,
+            'render_args': render_args,
+            'build_args': build_args,
+            'crum_dir': crum_dir}
+
+
+def load_recipes(crum_config_file, build_dir=None, cache_dir=None, **kwargs):
+    crum_args = resolve_args(crum_config_file, build_dir, cache_dir)
+    cwd = ph.path(os.getcwd())
     try:
-        os.chdir(crum_dir)
+        os.chdir(crum_args['crum_dir'])
+        crum_config = YAML().load(crum_config_file)
         recipes = [ph.path(r).realpath().joinpath('meta.yaml')
                    for r in crum_config.get('recipes', [])]
-        return render_recipes(cache_dir, recipes, render_args, **kwargs)
+        return render_recipes(crum_args['cache_dir'], recipes,
+                              crum_args['render_args'], **kwargs)
     except KeyboardInterrupt:
         click.clear()
         raise

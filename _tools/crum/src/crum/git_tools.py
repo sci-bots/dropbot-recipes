@@ -2,11 +2,9 @@
 u'''
 Conda bump helper functions.
 '''
-# coding: utf-8
 from __future__ import absolute_import, unicode_literals, print_function
 from argparse import ArgumentParser
 import copy
-import os
 import sys
 
 import click
@@ -14,6 +12,7 @@ import git
 import path_helpers as ph
 import semantic_version
 
+from . import find_crum_root
 from .gitpython_helpers import traverse, head_tag, diff_recursive
 from .recipes import version_type, BUMP_COMMIT_MESSAGE
 
@@ -165,20 +164,6 @@ def parse_args(args=None):
                                action='store_true')
 
     return parser.parse_args()
-
-
-def find_crum_root(dir_path=None):
-    if dir_path is None:
-        dir_path = os.getcwd()
-    root = ph.path(dir_path).realpath()
-
-    while root.basename() and not root.files('crum.yaml'):
-        root = root.parent
-        if not root.basename():
-            break
-    else:
-        return root
-    raise IOError('Not a crum project (could not find `crum.yaml`).')
 
 
 def main(*_args):
