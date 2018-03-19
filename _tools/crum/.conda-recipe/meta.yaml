@@ -14,16 +14,30 @@ build:
 
 requirements:
   build:
+    - click
+    - conda-helpers
+    - git
+    - gitpython
+    - joblib
     - networkx
+    - pydash
     - python
     - path_helpers
     - ruamel.yaml
+    - semantic_version
 
   run:
+    - click
+    - conda-helpers
+    - git
+    - gitpython
+    - joblib
     - networkx
+    - pydash
     - python
     - path_helpers
     - ruamel.yaml
+    - semantic_version
 
 test:
   imports:
