@@ -334,7 +334,7 @@ def apply_changes(recipe_path, changes):
 
 def resolve_args(crum_config_file, build_dir=None, cache_dir=None):
     crum_config_file = ph.path(crum_config_file).realpath()
-    crum_config = YAML().load(crum_config_file)
+    crum_config = YAML().load(crum_config_file.text())
     crum_dir = crum_config_file.realpath().parent
 
     cwd = ph.path(os.getcwd())
@@ -375,11 +375,12 @@ def resolve_args(crum_config_file, build_dir=None, cache_dir=None):
 
 
 def load_recipes(crum_config_file, build_dir=None, cache_dir=None, **kwargs):
+    crum_config_file = ph.path(crum_config_file).realpath()
     crum_args = resolve_args(crum_config_file, build_dir, cache_dir)
     cwd = ph.path(os.getcwd())
     try:
         os.chdir(crum_args['crum_dir'])
-        crum_config = YAML().load(crum_config_file)
+        crum_config = YAML().load(crum_config_file.text())
         recipes = [ph.path(r).realpath().joinpath('meta.yaml')
                    for r in crum_config.get('recipes', [])]
         return render_recipes(crum_args['cache_dir'], recipes,
