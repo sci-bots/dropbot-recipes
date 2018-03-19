@@ -51,7 +51,7 @@ CRUM_BASE_PARSER.add_argument('--build-dir', help='Conda build output dir '
                               '(default=`./conda-bld`)', type=ph.path)
 
 
-def find_requirements(recipe_obj, package_name):
+def find_requirements(recipe_obj, package_name=None):
     '''
     Find all ``requirements`` sections in the Conda build recipe.
     '''
@@ -63,12 +63,13 @@ def find_requirements(recipe_obj, package_name):
                         matches.append((value.split(' ')[0], value, path))
                         if (len(path) > 2 and path[-3] == 'requirements'
                             and isinstance(value, str)
-                            and value.split(' ')[0] in package_name)
+                            and (package_name is None or
+                                 value.split(' ')[0] in package_name))
                         else None)
     return matches
 
 
-def dependency_graph(recipe_objs):
+def dependency_graph(recipe_objs, all_dependencies=False):
     '''
     Generate directed dependency graph for the specified recipes.
 
@@ -79,6 +80,9 @@ def dependency_graph(recipe_objs):
         loaded YAML contents for `each output <https://conda.io/docs/user-guide/tasks/build-packages/define-metadata.html#outputs-section>`_
         specified in the corresponding recipe (recipes typically contain only
         one output).
+    all_dependencies : bool, optional
+        If ``True``, add nodes/edges for **all required packages**.  Otherwise,
+        only add nodes/edges for packages found in :data:`recipe_objs`.
     '''
     # Extract package name and version from each recipe output.
     subpackage_info = OrderedDict([(_py.get(v, 'package.name'), pkg_resources
@@ -96,7 +100,8 @@ def dependency_graph(recipe_objs):
         # Find all packages from known recipes required in the current recipe.
         for recipe_obj_ij in recipe_objs_i:
             requirements_ij = find_requirements(recipe_obj_ij,
-                                                subpackage_info.keys())
+                                                None if all_dependencies
+                                                else subpackage_info.keys())
             requirements_i += requirements_ij
             # Map each package name to corresponding recipe path.
             recipe_paths_by_package[recipe_obj_ij['package']['name']] = \
@@ -112,7 +117,7 @@ def dependency_graph(recipe_objs):
     G = nx.DiGraph()
     G.add_edges_from([e for e in dependency_edges if e[0] != e[1]])
     for node_i in G.nodes:
-        G.node[node_i]['recipe'] = recipe_paths_by_package[node_i]
+        G.node[node_i]['recipe'] = recipe_paths_by_package.get(node_i)
     return G
 
 
