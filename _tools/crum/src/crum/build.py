@@ -2,10 +2,8 @@
 from __future__ import absolute_import, unicode_literals, print_function
 from argparse import ArgumentParser
 from collections import OrderedDict
-import itertools as it
 import sys
 
-from ruamel.yaml import YAML
 import click
 import conda_helpers as ch
 import path_helpers as ph
