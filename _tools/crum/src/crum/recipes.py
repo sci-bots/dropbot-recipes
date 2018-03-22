@@ -387,8 +387,11 @@ def load_recipes(crum_config_file, build_dir=None, cache_dir=None, **kwargs):
     try:
         os.chdir(crum_args['crum_dir'])
         crum_config = YAML().load(crum_config_file.text())
+        recipes = crum_config.get('recipes', [])
+        if recipes and isinstance(recipes[0], list):
+            recipes = list(it.chain(*recipes))
         recipes = [ph.path(r).realpath().joinpath('meta.yaml')
-                   for r in crum_config.get('recipes', [])]
+                   for r in recipes]
         return render_recipes(crum_args['cache_dir'], recipes,
                               crum_args['render_args'], **kwargs)
     except KeyboardInterrupt:
