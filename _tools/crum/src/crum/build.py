@@ -10,12 +10,8 @@ import click
 import conda_helpers as ch
 import path_helpers as ph
 
+import crum
 import crum.recipes
-
-
-def parse_args():
-    parser = ArgumentParser(parents=[crum.recipes.CRUM_BASE_PARSER])
-    return parser.parse_args()
 
 
 def build(recipe_path, *args, **kwargs):
@@ -35,7 +31,9 @@ def build(recipe_path, *args, **kwargs):
 
 
 if __name__ == '__main__':
-    args = parse_args()
+    parser = ArgumentParser(parents=[crum.recipes.CRUM_BASE_PARSER])
+    args = parser.parse_args()
+
     try:
         out_stream = sys.stdout
 

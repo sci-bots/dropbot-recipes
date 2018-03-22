@@ -23,6 +23,7 @@ import networkx as nx
 import pydash as _py
 import semantic_version
 
+from . import find_crum_root
 from .render import render
 
 
@@ -46,7 +47,7 @@ CRUM_BASE_PARSER.add_argument('--cache-dir', type=ph.path, help='Cache '
                               'directory (default=`.cache`).')
 CRUM_BASE_PARSER.add_argument('-f', '--config-file', type=ph.path, help='crum '
                               'config' ' file (default=`%(default)s`)',
-                              default=ph.path('crum.yaml'))
+                              default=find_crum_root().joinpath('crum.yaml'))
 CRUM_BASE_PARSER.add_argument('--build-dir', help='Conda build output dir '
                               '(default=`./conda-bld`)', type=ph.path)
 
