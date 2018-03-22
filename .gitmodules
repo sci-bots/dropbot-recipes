@@ -51,7 +51,7 @@
 	url = git@github.com:sci-bots/teensy-minimal-rpc.git
 [submodule "_source/asyncserial"]
 	path = _source/asyncserial
-	url = https://github.com/m-labs/asyncserial
+	url = https://github.com/sci-bots/asyncserial
 [submodule "_source/serial-device"]
 	path = _source/serial-device
 	url = git@github.com:sci-bots/serial-device
