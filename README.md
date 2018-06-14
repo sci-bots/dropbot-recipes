@@ -26,7 +26,7 @@ On Linux, the path is:
 
        conda install -n root conda-build -c conda-forge
 
-2. Build DropBot dependencies (Windows Powershell or Bash):
+2. Build DropBot dependencies (Windows Powershell or Bash). Note that you will  need to install [this package](https://github.com/BCSharp/PSCondaEnvs) to use conda with Powershell:
 
        conda build --croot C:\bld -c dropbot -c sci-bots -c conda-forge --skip-existing -m variants.yaml $(cat bootstrap-build-order.txt)
 
