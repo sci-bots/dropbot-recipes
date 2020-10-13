@@ -1,66 +1,66 @@
 [submodule "slow-soft-i2c-master"]
 	path = arduino/slow-soft-i2c-master
-	url = git@github.com:sci-bots/arduino-slow-soft-i2c-master-recipe.git
+	url = https://github.com/sci-bots/arduino-slow-soft-i2c-master-recipe.git
 [submodule "slow-soft-wire"]
 	path = arduino/slow-soft-wire
-	url = git@github.com:sci-bots/arduino-slow-soft-wire-recipe.git
+	url = https://github.com/sci-bots/arduino-slow-soft-wire-recipe.git
 [submodule "platformio"]
 	path = platformio
-	url = git@github.com:sci-bots/platformio-recipes.git
+	url = https://github.com/sci-bots/platformio-recipes.git
 [submodule "_source/arduino-helpers"]
 	path = _source/arduino-helpers
-	url = git@github.com:sci-bots/arduino-helpers.git
+	url = https://github.com/sci-bots/arduino-helpers.git
 [submodule "_source/arduino-memory"]
 	path = _source/arduino-memory
-	url = git@github.com:sci-bots/arduino-memory.git
+	url = https://github.com/sci-bots/arduino-memory.git
 [submodule "_source/base-node"]
 	path = _source/base-node
-	url = git@github.com:sci-bots/base-node.git
+	url = https://github.com/sci-bots/base-node.git
 [submodule "_source/c-array-defs"]
 	path = _source/c-array-defs
-	url = git@github.com:sci-bots/c-array-defs.git
+	url = https://github.com/sci-bots/c-array-defs.git
 [submodule "_source/clang-helpers"]
 	path = _source/clang-helpers
-	url = git@github.com:sci-bots/clang-helpers.git
+	url = https://github.com/sci-bots/clang-helpers.git
 [submodule "_source/conda-helpers"]
 	path = _source/conda-helpers
-	url = git@github.com:sci-bots/conda-helpers.git
+	url = https://github.com/sci-bots/conda-helpers.git
 [submodule "_source/logging-helpers"]
 	path = _source/logging-helpers
-	url = git@github.com:sci-bots/logging-helpers.git
+	url = https://github.com/sci-bots/logging-helpers.git
 [submodule "_source/mqtt-messages-python"]
 	path = _source/mqtt-messages-python
-	url = git@github.com:sci-bots/mqtt-messages-python.git
+	url = https://github.com/sci-bots/mqtt-messages-python.git
 [submodule "_source/nanopb-helpers"]
 	path = _source/nanopb-helpers
-	url = git@github.com:sci-bots/nanopb-helpers.git
+	url = https://github.com/sci-bots/nanopb-helpers.git
 [submodule "_source/or-event"]
 	path = _source/or-event
-	url = git@github.com:sci-bots/or-event.git
+	url = https://github.com/sci-bots/or-event.git
 [submodule "_source/arduino-rpc"]
 	path = _source/arduino-rpc
-	url = git@github.com:sci-bots/arduino-rpc.git
+	url = https://github.com/sci-bots/arduino-rpc.git
 [submodule "_source/base-node-rpc"]
 	path = _source/base-node-rpc
-	url = git@github.com:sci-bots/base-node-rpc.git
+	url = https://github.com/sci-bots/base-node-rpc.git
 [submodule "_source/nadamq"]
 	path = _source/nadamq
-	url = git@github.com:sci-bots/nadamq.git
+	url = https://github.com/sci-bots/nadamq.git
 [submodule "_source/teensy-minimal-rpc"]
 	path = _source/teensy-minimal-rpc
-	url = git@github.com:sci-bots/teensy-minimal-rpc.git
+	url = https://github.com/sci-bots/teensy-minimal-rpc.git
 [submodule "_source/asyncserial"]
 	path = _source/asyncserial
 	url = https://github.com/sci-bots/asyncserial
 [submodule "_source/serial-device"]
 	path = _source/serial-device
-	url = git@github.com:sci-bots/serial-device
+	url = https://github.com/sci-bots/serial-device
 [submodule "_source/paho-mqtt-helpers"]
 	path = _source/paho-mqtt-helpers
-	url = git@github.com:sci-bots/paho-mqtt-helpers.git
+	url = https://github.com/sci-bots/paho-mqtt-helpers.git
 [submodule "_source/pandas-helpers"]
 	path = _source/pandas-helpers
-	url = git@github.com:sci-bots/pandas-helpers.git
+	url = https://github.com/sci-bots/pandas-helpers.git
 [submodule "_source/platformio-helpers"]
 	path = _source/platformio-helpers
-	url = git@github.com:sci-bots/platformio-helpers.git
+	url = https://github.com/sci-bots/platformio-helpers.git
